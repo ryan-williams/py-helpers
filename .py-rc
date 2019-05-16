@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-alias ve=virtualenv
-alias piu="pip install --upgrade"
-alias piuu="pip install --user --upgrade"
+defn ve virtualenv
+
+defn piu pip install --upgrade
+defn piuu pip install --user --upgrade
 defn pii pip install
 defn pis pip search
 defn piun pip uninstall
@@ -15,10 +16,15 @@ piui() {
 }
 export -f piui
 
-pil() { 
-	pip list | grep "$@"
+pil() {
+    if [ $# -eq 0 ]; then
+        pip list
+    else
+	    pip list | grep "$@"
+    fi
 }
 export -f pil
+
 pir() {
 	if [ $# -eq 0 ]; then
 		pip install -r requirements.txt
@@ -27,13 +33,6 @@ pir() {
 	fi
 }
 export -f pir
-
-export PYTHON2_HOME="/usr/local"
-
-pex() {
-	python -c 'import sys; print(sys.executable)'
-}
-export -f pex
 
 alias apy="alias-which python"
 alias apv="alias-which python && python --version && pyenv version && pex"
