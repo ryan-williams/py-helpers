@@ -34,20 +34,25 @@ pir() {
 }
 export -f pir
 
+pex() {
+  python -c 'import sys; print(sys.executable)'
+}
+export -f pex
+
 alias apy="alias-which python"
 alias apv="alias-which python && python --version && pyenv version && pex"
 
 venv() {
-	base="${1:-"$(basename "$PWD")"}"
-	shift
-	version="${1:-3.7.2}"
-	shift
-	echo "$base $version"
-	name="$base-$version"
-	pyenv virtualenv "$version" "$name"
-	pyenv local "$name"
-	pip install --upgrade pip ipykernel
-	install_kernel
+  base="${1:-"$(basename "$PWD")"}"
+  shift
+  version="${1:-3.7.3}"
+  shift
+  echo "$base $version"
+  name="$base-$version"
+  pyenv virtualenv "$version" "$name"
+  pyenv local "$name"
+  pip install --upgrade pip ipykernel
+  install_kernel
 }
 
 defn pci python-check-import
@@ -83,4 +88,12 @@ defn jik install_kernel
 if which pyenv &>/dev/null; then
 	eval "$(pyenv init -)"
 	eval "$(pyenv virtualenv-init -)"
+fi
+
+if which brew &>/dev/null; then
+  pyei() {
+    CPPFLAGS="-I$(brew --prefix zlib)/include -I$(brew --prefix sqlite)/include" pyenv install "$@"
+  }
+else
+  defn pyei pyenv install
 fi
