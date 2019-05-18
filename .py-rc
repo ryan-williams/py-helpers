@@ -9,10 +9,10 @@ defn pis pip search
 defn piun pip uninstall
 
 piui() {
-	for arg in "$@"; do
-		pip uninstall "$arg"
-		pip install "$arg"
-	done
+  for arg in "$@"; do
+    pip uninstall "$arg"
+    pip install "$arg"
+  done
 }
 export -f piui
 
@@ -20,17 +20,17 @@ pil() {
     if [ $# -eq 0 ]; then
         pip list
     else
-	    pip list | grep "$@"
+      pip list | grep "$@"
     fi
 }
 export -f pil
 
 pir() {
-	if [ $# -eq 0 ]; then
-		pip install -r requirements.txt
-	else
-		pip install -r "$@"
-	fi
+  if [ $# -eq 0 ]; then
+    pip install -r requirements.txt
+  else
+    pip install -r "$@"
+  fi
 }
 export -f pir
 
@@ -69,25 +69,28 @@ python_major_version() {
 defn pymv python_major_version
 
 epp() {
-	echo "$PYTHONPATH"
+  echo "$PYTHONPATH"
 }
 export -f epp
 
 install_kernel() {
-	if [ $# -eq 0 ]; then
-		kernel="$(pyenv version | first)"
-	else
-		kernel="$1"
-		shift
-	fi
-	python -m ipykernel install --user --name "$kernel"
+  if [ $# -eq 0 ]; then
+    kernel="$(pyenv version | first)"
+  else
+    kernel="$1"
+    shift
+  fi
+  python -m ipykernel install --user --name "$kernel"
 }
 export -f install_kernel
 defn jik install_kernel
 
+if ! which pyenv &>/dev/null && [ -e "$HOME/.pyenv/bin" ]; then
+  prepend_to_path "$HOME/.pyenv/bin"
+fi
 if which pyenv &>/dev/null; then
-	eval "$(pyenv init -)"
-	eval "$(pyenv virtualenv-init -)"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
 fi
 
 if which brew &>/dev/null; then
