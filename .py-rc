@@ -3,6 +3,7 @@
 defn ve virtualenv
 
 defn piu pip install --upgrade
+defn piup pip install --upgrade pip
 defn piuu pip install --user --upgrade
 defn pii pip install
 defn pis pip search
