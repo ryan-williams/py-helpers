@@ -43,13 +43,16 @@ export -f pex
 alias apy="alias-which python"
 alias apv="alias-which python && python --version && pyenv version && pex"
 
+export PYTHON_DEFAULT_VERSION=3.7.4
+
 venv() {
   base="${1:-"$(basename "$PWD")"}"
   shift
-  version="${1:-3.7.3}"
+  version="${1:-${PYTHON_DEFAULT_VERSION}}"
   shift
   echo "$base $version"
   name="$base-$version"
+  set -e
   pyenv virtualenv "$version" "$name"
   pyenv local "$name"
   pip install --upgrade pip ipykernel
