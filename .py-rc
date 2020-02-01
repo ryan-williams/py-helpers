@@ -52,10 +52,9 @@ venv() {
   shift
   echo "$base $version"
   name="$base-$version"
-  set -e
-  pyenv virtualenv "$version" "$name"
-  pyenv local "$name"
-  pip install --upgrade pip ipykernel
+  pyenv virtualenv "$version" "$name" && \
+  pyenv local "$name" && \
+  pip install --upgrade pip ipykernel && \
   install_kernel
 }
 
@@ -104,3 +103,7 @@ if which brew &>/dev/null; then
 else
   defn pyei pyenv install
 fi
+
+defn jp jupyter
+defn jpl jupyter notebook list
+defn jkl jupyter kernelspec list
