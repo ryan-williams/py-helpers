@@ -43,7 +43,7 @@ export -f pex
 alias apy="alias-which python"
 alias apv="alias-which python && python --version && pyenv version && pex"
 
-export PYTHON_DEFAULT_VERSION=3.7.4
+export PYTHON_DEFAULT_VERSION=3.8.1
 
 venv() {
   base="${1:-"$(basename "$PWD")"}"
@@ -107,3 +107,16 @@ fi
 defn jp jupyter
 defn jpl jupyter notebook list
 defn jkl jupyter kernelspec list
+
+pyenv_list() {
+  if [ $# -gt 0 ]; then
+    pyenv versions | grep "$@"
+  else
+    pyenv versions
+  fi
+}
+export -f pyenv_list
+defn pys pyenv_list
+
+defn pyl pyenv local
+defn pyg pyenv global
