@@ -8,6 +8,7 @@ defn piuu pip install --user --upgrade
 defn pii pip install
 defn pis pip search
 defn piun pip uninstall
+defn pui pip uninstall
 
 piui() {
   for arg in "$@"; do
@@ -43,7 +44,7 @@ export -f pex
 alias apy="alias-which python"
 alias apv="alias-which python && python --version && pyenv version && pex"
 
-export PYTHON_DEFAULT_VERSION=3.8.1
+export PYTHON_DEFAULT_VERSION=3.8.2
 
 venv() {
   base="${1:-"$(basename "$PWD")"}"
@@ -120,3 +121,7 @@ defn pys pyenv_list
 
 defn pyl pyenv local
 defn pyg pyenv global
+
+defn nd nbdiff-web
+defn ndw nbdiff-web
+defn nbw nbdiff-web
