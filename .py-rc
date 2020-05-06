@@ -125,3 +125,8 @@ defn pyg pyenv global
 defn nd nbdiff-web
 defn ndw nbdiff-web
 defn nbw nbdiff-web
+
+defn pm papermill
+defn ppm papermill
+defn pmh papermill -h
+defn ppmh papermill -h
