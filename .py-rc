@@ -6,6 +6,11 @@ defn piu pip install --upgrade
 defn piup pip install --upgrade pip
 defn piuu pip install --user --upgrade
 defn pii pip install
+piie() {
+    pip install -e "${@:-.}"
+}
+export -f piie
+
 defn pis pip search
 defn piun pip uninstall
 defn pui pip uninstall
