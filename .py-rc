@@ -6,6 +6,7 @@ defn piu pip install --upgrade
 defn piup pip install --upgrade pip
 defn piuu pip install --user --upgrade
 defn pii pip install
+defn pif pip show
 piie() {
     pip install -e "${@:-.}"
 }
@@ -27,10 +28,19 @@ pil() {
     if [ $# -eq 0 ]; then
         pip list
     else
-      pip list | grep "$@"
+      pip list | grep -i "$@"
     fi
 }
 export -f pil
+
+pilc() {
+    if [ $# -eq 0 ]; then
+        pip list
+    else
+      pip list | grep "$@"
+    fi
+}
+export -f pilc
 
 pir() {
   if [ $# -eq 0 ]; then
@@ -41,13 +51,21 @@ pir() {
 }
 export -f pir
 
-pex() {
+python_executable() {
   python -c 'import sys; print(sys.executable)'
 }
-export -f pex
+export -f python_executable
+defn pex python_executable
 
 alias apy="alias-which python"
-alias apv="alias-which python && python --version && pyenv version && pex"
+all_python_versions() {
+  alias-which python && \
+  python --version && \
+  (! type pyenv &>/dev/null || pyenv version) && \
+  python_executable
+}
+export -f all_python_versions
+defn apv all_python_versions
 
 export PYTHON_DEFAULT_VERSION=3.8.2
 
@@ -111,7 +129,10 @@ else
 fi
 
 defn jp jupyter
+defn jnb jupyter notebook
+defn jnc jupyter nbconvert
 defn jpl jupyter notebook list
+defn jyl jupyter notebook list
 defn jkl jupyter kernelspec list
 
 pyenv_list() {
