@@ -147,6 +147,11 @@ defn pys pyenv_list
 
 defn pyl pyenv local
 defn pyg pyenv global
+pyenv_find() {
+  pyenv install -l | grep "$@"
+}
+export -f pyenv_find
+defn pyf pyenv_find
 
 defn nd nbdiff-web
 defn ndw nbdiff-web
