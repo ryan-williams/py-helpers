@@ -67,7 +67,7 @@ all_python_versions() {
 export -f all_python_versions
 defn apv all_python_versions
 
-export PYTHON_DEFAULT_VERSION=3.8.2
+export PYTHON_DEFAULT_VERSION=3.8.5
 
 venv() {
   base="${1:-"$(basename "$PWD")"}"
@@ -161,3 +161,14 @@ defn pm papermill
 defn ppm papermill
 defn pmh papermill -h
 defn ppmh papermill -h
+
+copy_jupyter_config() {
+  dir=".jupyter/nbconfig"
+  path="$dir/notebook.json"
+  ssh "$@" "mkdir -p $dir"
+  host="${@:$#}"
+  args=("${@:1:(($#-1))}")
+  scp "${args[@]}" "$HOME/$path" "$host:$path"
+}
+export -f copy_jupyter_config
+defn cjc copy_jupyter_config
