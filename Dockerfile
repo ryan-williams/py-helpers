@@ -11,6 +11,7 @@ RUN pip install --upgrade --no-cache pip wheel jupyter pandas sqlalchemy
 
 WORKDIR /root
 RUN curl -L https://j.mp/_rc > _rc && chmod u+x _rc && ./_rc runsascoded/.rc
+COPY notebook.json /root/.jupyter/nbconfig/
 
 WORKDIR /
 
