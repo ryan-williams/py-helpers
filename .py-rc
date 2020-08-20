@@ -130,6 +130,8 @@ fi
 
 defn jp jupyter
 defn jnb jupyter notebook
+# Useful for running Jupyter in Docker (requires dangling port argument value, as written)
+defn jnbd jupyter notebook --ip 0.0.0.0 --ContentsManager.allow_hidden=True --allow-root --port
 defn jnc jupyter nbconvert
 defn jpl jupyter notebook list
 defn jyl jupyter notebook list
