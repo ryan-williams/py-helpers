@@ -202,7 +202,7 @@ convert_nb() {
   if [ $# -gt 0 ]; then
     output="$1"; shift
   else
-    output="${nb%.*}.$xtn"
+    output="${input%.*}.$xtn"
   fi
   jupyter nbconvert --to "$to" --output "$output" "$input"
 }
