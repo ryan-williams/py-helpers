@@ -174,3 +174,56 @@ copy_jupyter_config() {
 }
 export -f copy_jupyter_config
 defn cjc copy_jupyter_config
+
+convert_nb() {
+  if [ $# -lt 1 ]; then
+    echo "Illegal call to convert_nb wrapper; usage: $0 <output format> <input notebook> [output path]" >&2
+    return 1
+  fi
+  fmt="$1"; shift
+  if [ "$fmt" == "md" -o "$fmt" == "markdown" ]; then
+    xtn=md
+    to=markdown
+  elif [ "$fmt" == "py" -o "$fmt" == "python" ]; then
+    xtn=py
+    to=python
+  elif [ "$fmt" == "ipynb" -o "$fmt" == "notebook" ]; then
+    xtn=ipynb
+    to=notebook
+  else
+    xtn="$fmt"
+    to="$fmt"
+  fi
+  if [ $# -eq 0 -o $# -gt 2 ]; then
+    echo "Usage: $0 <input path> [output path]" >&2
+    return 2
+  fi
+  input="$1"; shift
+  if [ $# -gt 0 ]; then
+    output="$1"; shift
+  else
+    output="${nb%.*}.$xtn"
+  fi
+  jupyter nbconvert --to "$to" --output "$output" "$input"
+}
+
+notebook_to() {
+  fmts="$1"; shift
+  IFS=', ' read -r -a fmts <<< "$fmts"
+  for fmt in "${fmts[@]}"; do
+    convert_nb "$fmt" "$@"
+  done
+}
+export -f notebook_to
+defn nb2 notebook_to
+
+defn nb2md convert_nb md
+defn nb2m convert_nb md
+
+defn nb2html convert_nb html
+defn nb2h convert_nb html
+
+defn nb2py convert_nb py
+defn nb2p convert_nb py
+
+defn nb2hm nb2 html,md
