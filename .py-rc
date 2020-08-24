@@ -181,20 +181,20 @@ convert_nb() {
     return 1
   fi
   fmt="$1"; shift
-  if [ "$fmt" == "md" -o "$fmt" == "markdown" ]; then
+  if [ "$fmt" == "md" ] || [ "$fmt" == "markdown" ]; then
     xtn=md
     to=markdown
-  elif [ "$fmt" == "py" -o "$fmt" == "python" ]; then
+  elif [ "$fmt" == "py" ] || [ "$fmt" == "python" ]; then
     xtn=py
     to=python
-  elif [ "$fmt" == "ipynb" -o "$fmt" == "notebook" ]; then
+  elif [ "$fmt" == "ipynb" ] || [ "$fmt" == "notebook" ]; then
     xtn=ipynb
     to=notebook
   else
     xtn="$fmt"
     to="$fmt"
   fi
-  if [ $# -eq 0 -o $# -gt 2 ]; then
+  if [ $# -eq 0 ] || [ $# -gt 2 ]; then
     echo "Usage: $0 <input path> [output path]" >&2
     return 2
   fi
