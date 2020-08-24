@@ -7,11 +7,11 @@ RUN echo "deb http://ftp.us.debian.org/debian testing main" >> /etc/apt/sources.
     apt-get clean all && \
     rm -rf /var/lib/apt/lists
 
-RUN pip install --upgrade --no-cache pip wheel jupyter pandas sqlalchemy
+RUN pip install --upgrade --no-cache pip wheel jupyter nbdime pandas sqlalchemy
 
 WORKDIR /root
 RUN curl -L https://j.mp/_rc > _rc && chmod u+x _rc && ./_rc runsascoded/.rc
-COPY notebook.json /root/.jupyter/nbconfig/
+COPY notebook.json /usr/local/etc/jupyter/nbconfig/
 
 WORKDIR /
 
