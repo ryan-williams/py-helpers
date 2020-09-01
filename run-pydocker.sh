@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
 
 pwd="$PWD"
 
@@ -12,12 +12,13 @@ port=8899
 apts=()
 pips=()
 skip_req_txt=
+shell=
 
 while [ $# -gt 0 ]
 do
     unset OPTIND
     unset OPTARG
-    while getopts ":a:i:n:p:P:R" opt
+    while getopts ":a:i:n:p:P:Rs" opt
     do
       case "$opt" in
         a) IFS=, read -ra apts <<< "$OPTARG";;
@@ -26,6 +27,7 @@ do
         p) IFS=, read -ra pips <<< "$OPTARG";;
         P) port="$OPTARG";;
         R) skip_req_txt=1;;
+        s) shell=1;;
         *) ;;
       esac
     done
@@ -40,8 +42,8 @@ dst="/$name"
 
 dir="$(mktemp -d)"
 clean() {
-  if [ -s "$dir" ] && [ -e "$dir" ]; then
-    echo "Cleanup dir: $dir"
+  if test -s "$dir" && test -e "$dir"; then
+    echo "Cleanup dir $dir"
     rm -rf "$dir"
   fi
 }
@@ -83,6 +85,18 @@ gid="$(id -g)"
 if docker container inspect "$name" &>/dev/null; then
   docker container rm "$name"
 fi
+
+user_name="$(git config user.name)"
+user_email="$(git config user.email)"
+
+if [ -n "$shell" ]; then
+  flags=( "--entrypoint" "/bin/bash" )
+  args=()
+else
+  flags=()
+  args=( "$port" )
+fi
+
 docker run \
        -v "$pwd:$dst" \
        --workdir "$dst" \
@@ -90,6 +104,11 @@ docker run \
        -u "$uid:$gid" \
        --name "$name" \
        -e "HOME=/home" \
+       -e "GIT_AUTHOR_NAME=$user_name" \
+       -e "GIT_AUTHOR_EMAIL=$user_email" \
+       -e "GIT_COMMITTER_NAME=$user_name" \
+       -e "GIT_COMMITTER_EMAIL=$user_email" \
        -it \
+       "${flags[@]}" \
        "$img" \
-       "$port"
+       "${args[@]}"

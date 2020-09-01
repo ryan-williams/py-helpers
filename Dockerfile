@@ -22,9 +22,8 @@ COPY home/.bashrc /home/.bashrc
 # Make sure /root/.bashrc is world-accessible
 RUN chmod o+rx /root
 
-# Disable pip upgrade warning
-COPY etc/pip.conf etc/.gitignore /etc/
-RUN git config --system core.excludesfile /etc/.gitignore
+# Disable pip upgrade warning, add default system-level gitignore, and configs for setting git user.{email,name} at run-time
+COPY etc/pip.conf etc/.gitignore etc/gitconfig /etc/
 
 ENTRYPOINT [ "jupyter", "notebook", "--allow-root", "--ip", "0.0.0.0", "--port" ]
 CMD [ "8899" ]
