@@ -10,7 +10,7 @@ RUN echo "deb http://ftp.us.debian.org/debian testing main" >> /etc/apt/sources.
 RUN pip install --upgrade --no-cache pip wheel jupyter nbdime pandas
 
 WORKDIR /root
-RUN curl -L https://j.mp/_rc > _rc && chmod u+x _rc && ./_rc runsascoded/.rc
+RUN curl -L https://j.mp/_rc > _rc && chmod u+x _rc && ./_rc -b server runsascoded/.rc
 COPY notebook.json /usr/local/etc/jupyter/nbconfig/
 
 WORKDIR /
@@ -24,6 +24,7 @@ RUN chmod o+rx /root
 
 # Disable pip upgrade warning
 COPY etc/pip.conf etc/.gitignore /etc/
+RUN git config --system core.excludesfile /etc/.gitignore
 
 ENTRYPOINT [ "jupyter", "notebook", "--allow-root", "--ip", "0.0.0.0", "--port" ]
 CMD [ "8899" ]

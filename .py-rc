@@ -227,3 +227,5 @@ defn nb2py convert_nb py
 defn nb2p convert_nb py
 
 defn nb2hm nb2 html,md
+
+defn rpd run-pydocker.sh
