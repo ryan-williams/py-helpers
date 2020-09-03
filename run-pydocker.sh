@@ -32,8 +32,8 @@ do
       esac
     done
     shift $((OPTIND-1))
-    ARGS+=("$1")
     if [ $# -gt 0 ]; then
+      ARGS+=("$1")
       shift
     fi
 done

@@ -136,6 +136,7 @@ defn jnc jupyter nbconvert
 defn jpl jupyter notebook list
 defn jyl jupyter notebook list
 defn jkl jupyter kernelspec list
+defn jyo jupyter-open.py
 
 pyenv_list() {
   if [ $# -gt 0 ]; then
