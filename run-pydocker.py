@@ -12,21 +12,38 @@ from utz import *
 
 parser = ArgumentParser()
 parser.add_argument('-i','--image',default='runsascoded/py3.8',help='Base docker image to build on')
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument('-j','--jupyter',action='store_true',help="Run a jupyter server in the current directory")
+group.add_argument('-s','--shell',action='store_true',help="Open a /bin/bash shell in the container (instead of running a jupyter server)")
+
 parser.add_argument('-P','--port',default=8899,help='Port to run Jupyter on inside the container, and also to expose on the host')
 parser.add_argument('-a','--apts',help='Comma-separated list of packages to apt-get install')
 parser.add_argument('-p','--pips',help='Comma-separated list of packages to pip install')
 parser.add_argument('-n','--name',help='Container name (defaults to directory basename)')
 parser.add_argument('-R','--skip-requirements-txt',action='store_true',help="Skip reading + pip-install any requirements.txt that is present")
-parser.add_argument('-s','--shell',action='store_true',help="Open a /bin/bash shell in the container (instead of running a jupyter server)")
+parser.add_argument('-U','--no-user',action='store_true',help="Run docker as root (instead of as the current system user)")
 args = parser.parse_args()
 image = args.image
+jupyter = args.jupyter
 port = args.port
 apts = args.apts.split(',') if args.apts else []
 pips = args.pips.split(',') if args.apts else []
 name = args.name
 skip_requirements_txt = args.skip_requirements_txt
 shell = args.shell
+skip_user = args.skip_user
 
+if shell and jupyter:
+    raise ValueError('')
+
+port_pcs = port.split('-')
+if len(port_pcs) == 1:
+    jupyter_port = port
+elif len(port_pcs) == 2:
+    jupyter_port = port_pcs[0]
+else:
+    raise ValueError(f'Unrecognized port/range: {port}')
 
 pwd = getcwd()
 
@@ -62,8 +79,12 @@ with TemporaryDirectory() as dir:
         run('docker','build','-t',image,'-f',tmp_dockerfile,dir)
 
 
-uid = line('id','-u')
-gid = line('id','-g')
+if skip_user:
+    user_args = []
+else:
+    uid = line('id','-u')
+    gid = line('id','-g')
+    user_args = [ '-u', f'{uid}:{gid}' ]
 
 if check('docker','container','inspect',name):
     run('docker','container','rm',name)
@@ -78,7 +99,10 @@ if shell:
     args = []
 else:
     flags = []
-    args = [ f'{port}' ]
+    if jupyter:
+        args = [ f'{jupyter_port}' ]
+    else:
+        args = []
 
 envs = {
    'HOME': '/home',
@@ -94,7 +118,6 @@ run(
         '-v',f'{pwd}:{dst}',
         '-w',dst,
         '-p',f'{port}:{port}',
-        '-u',f'{uid}:{gid}',
         '--name',name,
     ] + [
         arg for
@@ -102,6 +125,7 @@ run(
         for arg in [k,v]
     ] + \
     flags + \
+    user_args + \
     [ image ] + \
     args
 )
