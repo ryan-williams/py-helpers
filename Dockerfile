@@ -1,6 +1,11 @@
 # Base Dockerfile for Python projects; recent Git, pandas/jupyter/sqlalchemy, and dotfiles for working in-container
 FROM python:3.8-slim
 
+# Disable pip version check
+SHELL ["/bin/bash", "-c"]
+RUN echo $'[global]\n\
+disable-pip-version-check = True' > /etc/pip.conf
+
 RUN echo "deb http://ftp.us.debian.org/debian testing main" >> /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y curl git nano && \
