@@ -28,7 +28,11 @@ pil() {
     if [ $# -eq 0 ]; then
         pip list
     else
-      pip list | grep -i "$@"
+      args=()
+      for arg in "$@"; do
+        args+=("-e" "$arg")
+      done
+      pip list | grep -i "${args[@]}"
     fi
 }
 export -f pil
