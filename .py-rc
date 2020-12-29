@@ -234,3 +234,16 @@ defn nb2p convert_nb py
 defn nb2hm nb2 html,md
 
 defn rpd run-pydocker.sh
+
+clean_notebook() {
+  if [ $# -eq 0 ]; then
+    cat | jq 'del(.cells|.[]|.metadata|.papermill,.execution)|del(.metadata|.papermill,.widgets)'
+  else
+    for arg in "$@"; do
+      out="$(mktemp)"
+      jq 'del(.cells|.[]|.metadata|.papermill,.execution)|del(.metadata|.papermill,.widgets)' "$arg" > "$out"
+      mv "$out" "$arg"
+    done
+  fi
+}
+defn cnb clean_notebook
