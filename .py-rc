@@ -247,3 +247,5 @@ clean_notebook() {
   fi
 }
 defn cnb clean_notebook
+
+defn pss simple-server
