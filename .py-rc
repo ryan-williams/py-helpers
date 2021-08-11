@@ -71,7 +71,7 @@ all_python_versions() {
 export -f all_python_versions
 defn apv all_python_versions
 
-export PYTHON_DEFAULT_VERSION=3.8.5
+export PYTHON_DEFAULT_VERSION=3.9.5
 
 venv() {
   base="${1:-"$(basename "$PWD")"}"
