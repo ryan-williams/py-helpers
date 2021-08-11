@@ -251,3 +251,5 @@ clean_notebook() {
 defn cnb clean_notebook
 
 defn pss simple-server
+
+defn ptlf pytest --lf
