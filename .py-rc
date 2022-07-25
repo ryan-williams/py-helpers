@@ -60,6 +60,7 @@ python_executable() {
 }
 export -f python_executable
 defn pex python_executable
+defn ppe python_executable
 
 alias apy="alias-which python"
 all_python_versions() {
