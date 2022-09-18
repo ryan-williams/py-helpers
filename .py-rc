@@ -254,3 +254,15 @@ defn cnb clean_notebook
 defn pss simple-server
 
 defn ptlf pytest --lf
+
+find_python_imports() {
+    git grep -e '^from [^\.]*' -e '^import [^\.]*' \
+    | sed 's/^[^:]\+://' \
+    | awk '{ print $1,$2 }' \
+    | awk -F. '{ print $1 }' \
+    | awk '{ print $2 }' \
+    | sort \
+    | uniq
+}
+export -f find_python_imports
+defn fpi find_python_imports
