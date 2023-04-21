@@ -267,3 +267,29 @@ find_python_imports() {
 }
 export -f find_python_imports
 defn fpi find_python_imports
+
+defn cel conda env list
+defn cac conda activate
+defn cab conda activate base
+conda_list() {
+    # Call `conda list` on one or more packages
+    flags=()
+    pkgs=()
+    for arg in "$@"; do
+        if [[ "$arg" =~ "-*" ]]; then
+            flags+=("$arg")
+        else
+            pkgs+=("$arg")
+        fi
+    done
+    for pkg in "${pkgs[@]}"; do
+        conda list "${flags[@]}" "$pkg"
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+    done
+}
+export -f conda_list
+defn ctl conda_list
+defn cml conda_list  # conda "multi-list"

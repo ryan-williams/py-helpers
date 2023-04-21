@@ -1,3 +1,13 @@
 #!/usr/bin/env bash
 
-python -c "import $@"
+set -e
+
+if [ $# -eq 2 ]; then
+    python -c "from $1 import $2"
+elif [ $# -eq 1 ]; then
+    python -c "import $1"
+else
+    echo "Usage: $0 <import>" >&2
+    echo "Usage: $0 <from> <import>" >&2
+    exit 1
+fi
