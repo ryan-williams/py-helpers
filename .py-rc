@@ -107,7 +107,11 @@ export -f epp
 
 install_kernel() {
   if [ $# -eq 0 ]; then
-    kernel="$(pyenv version | first)"
+    if [ -n "$CONDA_DEFAULT_ENV" ]; then
+        kernel="conda-$CONDA_DEFAULT_ENV"
+    else
+        kernel="$(pyenv version | first)"
+    fi
   else
     kernel="$1"
     shift
@@ -268,7 +272,47 @@ find_python_imports() {
 export -f find_python_imports
 defn fpi find_python_imports
 
+install_conda() {
+    if [ $# -gt 0 ]; then
+        d="$1"
+        path_args=(-p "$@")
+    else
+        d="~/miniconda3"
+        path_args=()
+    fi
+    wget -Ominiconda.sh https://repo.anaconda.com/miniconda/Miniconda3-py39_23.1.0-1-Linux-x86_64.sh
+    bash miniconda.sh -b "${path_args[@]}"
+    rm miniconda.sh
+    echo ". $d/etc/profile.d/conda.sh" >> ~/.bashrc
+    conda="$d/bin/conda"
+    "$conda" install -y -n base conda-libmamba-solver
+    "$conda" config --set solver libmamba
+    # $conda config --set channel_priority flexible  # https://github.com/rapidsai/cuml/issues/4016
+    "$conda" activate base
+}
+
 defn cel conda env list
+conda_env_update() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: $0 <env name> [env file]" >&2
+        return 1
+    fi
+    env="$1"; shift
+    if [ $# -gt 0 ]; then
+        file_args=(-f "$1")
+        shift
+    else
+        file_args=()
+    fi
+    conda env update -n "$env" "${file_args[@]}"
+}
+export -f conda_env_update
+defn ceu conda_env_update
+conda_env_update_activate() {
+    conda_env_update "$@" && conda activate "$1"
+}
+export -f conda_env_update_activate
+defn ceua conda_env_update_activate
 defn cac conda activate
 defn cab conda activate base
 conda_list() {
@@ -293,3 +337,8 @@ conda_list() {
 export -f conda_list
 defn ctl conda_list
 defn cml conda_list  # conda "multi-list"
+defn cdl conda list
+
+defn cscf conda search -c conda-forge
+defn cns conda search
+defn cds conda search
