@@ -121,14 +121,16 @@ install_kernel() {
 export -f install_kernel
 defn jik install_kernel
 
-if ! which pyenv &>/dev/null && [ -e "$HOME/.pyenv/bin" ]; then
-  prepend_to_path "$HOME/.pyenv/bin"
-fi
-if which pyenv &>/dev/null; then
-  export PYENV_ROOT="$HOME/.pyenv"
-  export PATH="$PYENV_ROOT/bin:$PATH"
-  eval "$(pyenv init --path)"
-  eval "$(pyenv virtualenv-init -)"
+if [ -z "$CONDA" ]; then
+    if ! which pyenv &>/dev/null && [ -e "$HOME/.pyenv/bin" ]; then
+      prepend_to_path "$HOME/.pyenv/bin"
+    fi
+    if which pyenv &>/dev/null; then
+      export PYENV_ROOT="$HOME/.pyenv"
+      export PATH="$PYENV_ROOT/bin:$PATH"
+      eval "$(pyenv init --path)"
+      eval "$(pyenv virtualenv-init -)"
+    fi
 fi
 
 if which brew &>/dev/null; then
@@ -291,6 +293,14 @@ install_conda() {
     "$conda" activate base
 }
 
+defn cdc conda config
+defn cdcg conda config --get
+defn cdcs conda config --set
+defn cdcgs conda config --get solver
+defn cdcss conda config --set solver
+defn cdcssm conda config --set solver libmamba
+defn cim conda install -y -n base conda-libmamba-solver
+
 defn cel conda env list
 conda_env_update() {
     if [ $# -eq 0 ]; then
@@ -337,8 +347,12 @@ conda_list() {
 export -f conda_list
 defn ctl conda_list
 defn cml conda_list  # conda "multi-list"
-defn cdl conda list
+defn cls conda list
 
+defn cicf conda install -c conda-forge
 defn cscf conda search -c conda-forge
+defn cscfi conda search -c conda-forge --info
 defn cns conda search
+defn cnsi conda search --info
 defn cds conda search
+defn cdsi conda search --info
