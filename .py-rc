@@ -356,3 +356,10 @@ defn cns conda search
 defn cnsi conda search --info
 defn cds conda search
 defn cdsi conda search --info
+defn cdsj conda search --json
+
+defn cdf conda_deps_filter.py -f
+defn cdfh conda_deps_filter.py -h -f
+
+defn cdcn conda create -n
+defn cdcdn conda create -d -n
