@@ -2,6 +2,7 @@
 
 defn ve virtualenv
 
+defn pidr pip install --dry-run
 defn piu pip install --upgrade
 defn piup pip install --upgrade pip
 defn piuu pip install --user --upgrade
@@ -357,6 +358,21 @@ defn cnsi conda search --info
 defn cds conda search
 defn cdsi conda search --info
 defn cdsj conda search --json
+
+conda_search_conda_forge() {
+    flags=()
+    args=()
+    for arg in "$@"; do
+        if [[ "$arg" =~ "-*" ]]; then
+            flags+=("$arg")
+        else
+            args+=("conda-forge::$arg")
+        fi
+    done
+    conda search "${flags[@]}" "${args[@]}"
+}
+export -f conda_search_conda_forge
+defn cdscf conda_search_conda_forge
 
 defn cdf conda_deps_filter.py -f
 defn cdfh conda_deps_filter.py -h -f

@@ -26,19 +26,20 @@ def main(histogram, dep_filters, verbose, specs):
                     for dep_filter in dep_filters
                 )
             ]
-            if len(dep_filters) == 1:
-                dep_map[name] = deps[0] if deps else None
-            else:
-                dep_map[name] = deps
+            # if len(dep_filters) == 1:
+            #     dep_map[name] = deps[0] if deps else
+            # else:
+            dep_map[name] = deps if deps else [""]
 
     if histogram:
         hist = {}
-        for dep in dep_map.values():
-            if dep not in hist:
-                hist[dep] = 0
-            hist[dep] += 1
+        for deps in dep_map.values():
+            for dep in deps:
+                if dep not in hist:
+                    hist[dep] = 0
+                hist[dep] += 1
         if histogram == 1:
-            hist = dict(sorted(hist.items(), key=lambda k: k[0]))
+            hist = dict(sorted(hist.items(), key=lambda k: k[0] if k[0] is not None else 'zzz'))
         elif histogram == 2:
             hist = dict(sorted(hist.items(), key=lambda k: k[1]))
         elif histogram == 3:
