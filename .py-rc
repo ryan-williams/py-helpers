@@ -363,16 +363,19 @@ conda_search_conda_forge() {
     flags=()
     args=()
     for arg in "$@"; do
-        if [[ "$arg" =~ "-*" ]]; then
+        if [[ "$arg" == -* ]]; then
             flags+=("$arg")
         else
             args+=("conda-forge::$arg")
         fi
     done
-    conda search "${flags[@]}" "${args[@]}"
+    cmd=(conda search "${flags[@]}" "${args[@]}")
+    # echo "cmd: ${cmd[*]}" >&2
+    "${cmd[@]}"
 }
 export -f conda_search_conda_forge
 defn cdscf conda_search_conda_forge
+defn cdscfi conda_search_conda_forge --info
 
 defn cdf conda_deps_filter.py -f
 defn cdfh conda_deps_filter.py -h -f
