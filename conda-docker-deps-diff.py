@@ -14,14 +14,16 @@ from utz import process, err
 @click.option('-d', '--diff-specs', is_flag=True)
 @click.option('-p', '--parallel', is_flag=True, help="Parallelize `docker run`s with `joblib`")
 @click.option('-s', '--short', count=True)
+@click.option('-v', '--verbose', is_flag=True)
 @click.argument('before_img')
 @click.argument('after_img')
-def main(after_specs, before_specs, compact_json, diff_specs, parallel, short, before_img, after_img):
+def main(after_specs, before_specs, compact_json, diff_specs, parallel, short, verbose, before_img, after_img):
     if sum(1 if spec_fmt else 0 for spec_fmt in [ after_specs, before_specs, diff_specs ]) > 1:
         raise ValueError("Pass at most one of {-a/--after-specs,-b/--before-specs,-d/--diff-specs}")
 
     def docker_conda_list(img):
-        deps = process.json('docker', 'run', '--rm', '--entrypoint', 'conda', img, 'list', '--json')
+        kwargs = {} if verbose else { 'log': lambda _: None }
+        deps = process.json('docker', 'run', '--rm', '--entrypoint', 'conda', img, 'list', '--json', **kwargs)
         if short:
             return [
                 {
@@ -35,14 +37,14 @@ def main(after_specs, before_specs, compact_json, diff_specs, parallel, short, b
             return deps
 
     before_deps = after_deps = None
-    try:
-        if parallel:
+    if parallel:
+        try:
             from joblib import Parallel, delayed
             parallel = Parallel(cpu_count())
             fn = delayed(docker_conda_list)
             before_deps, after_deps = parallel(fn(img) for img in [ before_img, after_img ])
-    except ImportError:
-        pass
+        except ImportError:
+            pass
     if before_deps is None:
         before_deps = docker_conda_list(before_img)
         after_deps = docker_conda_list(after_img)
