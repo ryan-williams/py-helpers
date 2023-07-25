@@ -172,6 +172,8 @@ export -f pyenv_find
 defn pyf pyenv_find
 
 defn nd nbdiff-web
+defn nds nbdiff-web -s
+defn ndso nbdiff-web -so
 defn ndw nbdiff-web
 defn nbw nbdiff-web
 
@@ -247,17 +249,46 @@ defn nb2hm nb2 html,md
 defn rpd run-pydocker.sh
 
 clean_notebook() {
-  if [ $# -eq 0 ]; then
-    cat | jq 'del(.cells|.[]|.metadata|.papermill,.execution)|del(.metadata|.papermill,.widgets)'
-  else
-    for arg in "$@"; do
-      out="$(mktemp)"
-      jq 'del(.cells|.[]|.metadata|.papermill,.execution)|del(.metadata|.papermill,.widgets)' "$arg" > "$out"
-      mv "$out" "$arg"
-    done
-  fi
+    jq='.cells |= map(del(.id) | .metadata |= del(.papermill,.execution,.widgets)) | del(.metadata.papermill)'
+    if [ $# -eq 0 ]; then
+        cat | jq "$jq"
+    elif [ $# -eq 1 ]; then
+        out="$(mktemp)"
+        echo "Cleaning $1 in-place (temp file: $out)" >&2
+        jq "$jq" "$1" > "$out"
+        mv "$out" "$1"
+    elif [ $# -eq 2 ]; then
+        in="$1"; shift
+        out="$1"; shift
+        if [ -d "$out" ]; then
+            out="${out%/}/$(basename "$in")"
+        fi
+        echo "Cleaning $in, saving to $out" >&2
+        jq "$jq" "$in" > "$out"
+    else
+        echo "Usage: clean_notebook [path [out_path]]" >&2
+        return 1
+    fi
 }
 defn cnb clean_notebook
+
+papermill_clean() {
+    papermill "$@"
+    out=${@: -1}
+    echo "out: $out"
+    clean_notebook "$out"
+}
+export -f papermill_clean
+defn pmc papermill_clean
+
+papermill_clean_inplace() {
+    path=${@: -1}
+    tmp="$(mktemp)"
+    papermill "$@" "$tmp"
+    clean_notebook "$tmp" "$path"
+}
+export -f papermill_clean_inplace
+defn pmci papermill_clean_inplace
 
 defn pss simple-server
 
@@ -304,11 +335,17 @@ defn cim conda install -y -n base conda-libmamba-solver
 
 defn cel conda env list
 conda_env_update() {
-    if [ $# -eq 0 ]; then
-        echo "Usage: $0 <env name> [env file]" >&2
-        return 1
+    case "$1" in
+        -h | --help)
+            echo "Usage: ${FUNCNAME[0]} [env name=basename [env file]]" >&2
+            return 0
+        ;;
+    esac
+    if [ $# -gt 0 ]; then
+        env="$1"; shift
+    else
+        env="$(basename "$PWD")"
     fi
-    env="$1"; shift
     if [ $# -gt 0 ]; then
         file_args=(-f "$1")
         shift
@@ -320,7 +357,17 @@ conda_env_update() {
 export -f conda_env_update
 defn ceu conda_env_update
 conda_env_update_activate() {
-    conda_env_update "$@" && conda activate "$1"
+    conda_env_update "$@"
+    rv=$?
+    if [ $rv -ne 0 ]; then
+        return $rv
+    fi
+    if [ $# -gt 0 ]; then
+        env="$1"
+    else
+        env="$(basename "$PWD")"
+    fi
+    conda activate "$env"
 }
 export -f conda_env_update_activate
 defn ceua conda_env_update_activate
