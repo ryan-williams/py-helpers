@@ -172,6 +172,8 @@ export -f pyenv_find
 defn pyf pyenv_find
 
 defn nd nbdiff-web
+defn nbd nbdime diff
+defn nbds nbdime diff -s
 defn nds nbdiff-web -s
 defn ndso nbdiff-web -so
 defn ndw nbdiff-web
