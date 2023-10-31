@@ -433,3 +433,11 @@ defn cdcn conda create -n
 defn cdcdn conda create -d -n
 
 defn cddd conda-docker-deps-diff.py
+
+summarize_nb() {
+    local cwd="$(dirname "${BASH_SOURCE[0]}")"
+    jq -f "$cwd/summarize-nb.jq" "$@"
+}
+export -f summarize_nb
+defn snb summarize_nb
+defn sno summarize_nb
