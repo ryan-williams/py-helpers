@@ -226,6 +226,7 @@ convert_nb() {
   fi
   jupyter nbconvert --to "$to" --output "$output" "$input"
 }
+export -f convert_nb
 
 notebook_to() {
   fmts="$1"; shift
