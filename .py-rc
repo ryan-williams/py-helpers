@@ -147,11 +147,33 @@ defn jnb jupyter notebook
 # Useful for running Jupyter in Docker (requires dangling port argument value, as written)
 defn jnbd jupyter notebook --ip 0.0.0.0 --ContentsManager.allow_hidden=True --allow-root --port
 defn jnc jupyter nbconvert
+defn jnct jupyter nbconvert --to
 defn jnnc jupyter-nbconvert-clean
 defn jpl jupyter notebook list
 defn jyl jupyter notebook list
 defn jkl jupyter kernelspec list
 defn jyo jupyter-open.py
+
+jupyter_skip_slides() {
+    if [ "$1" == "-i" ]; then
+        shift
+        path="$1"
+        tmp="$(mktemp)"
+        jupyter_skip_slides "$@" > "$tmp"
+        mv "$tmp" "$path"
+    else
+        if [ $# -ne 1 ]; then
+            echo "Usage: $0 [-i] <ipynb path>" >&2
+            return 1
+        fi
+        path="$1"; shift
+        local dir="$(dirname "${BASH_SOURCE[0]}")"
+        jq -f "$dir/ipynb-skip-slides.jq" "$path"
+    fi
+}
+export -f jupyter_skip_slides
+defn jss jupyter_skip_slides
+defn jssi jupyter_skip_slides -i
 
 pyenv_list() {
   if [ $# -gt 0 ]; then
