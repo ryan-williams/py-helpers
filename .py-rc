@@ -175,6 +175,8 @@ export -f jupyter_skip_slides
 defn jss jupyter_skip_slides
 defn jssi jupyter_skip_slides -i
 
+defn jpt jupyter-parse-table.py
+
 pyenv_list() {
   if [ $# -gt 0 ]; then
     pyenv versions | grep "$@"
