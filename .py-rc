@@ -73,7 +73,7 @@ all_python_versions() {
 export -f all_python_versions
 defn apv all_python_versions
 
-export PYTHON_DEFAULT_VERSION=3.9.13
+export PYTHON_DEFAULT_VERSION=3.11.6
 
 venv() {
   base="${1:-"$(basename "$PWD")"}"
@@ -147,6 +147,8 @@ defn jnb jupyter notebook
 # Useful for running Jupyter in Docker (requires dangling port argument value, as written)
 defn jnbd jupyter notebook --ip 0.0.0.0 --ContentsManager.allow_hidden=True --allow-root --port
 defn jnc jupyter nbconvert
+defn jncs jupyter nbconvert --to slides
+defn jncs. jupyter nbconvert --to slides --output-dir=.
 defn jnct jupyter nbconvert --to
 defn jnnc jupyter-nbconvert-clean
 defn jpl jupyter notebook list
