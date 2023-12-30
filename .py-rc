@@ -184,6 +184,7 @@ defn jssi jupyter_skip_slides -i
 
 defn jpt jupyter-parse-table.py
 
+# See also: `juq cells -s <idx or slice> [path]`
 jupyter_cell_source() {
     local usage="Usage: $0 [-s sep] <cell idx or range, jq syntax> [ipynb path]"
     local sep=
@@ -218,6 +219,23 @@ jupyter_cell_source() {
 export -f jupyter_cell_source
 defn jcs jupyter_cell_source
 
+# See also: `juq cells -tc <idx or slice> [path]`
+jupyter_code_cells() {
+    if [ $# -eq 0 ] || [ $# -gt 2 ]; then
+        echo "Usage: $0 <cell idx or range, jq syntax> [ipynb path]" >&2
+        return 1
+    fi
+    local cells="$1"; shift
+    local query='[.cells[] | select(.cell_type == "code")]'"[$cells]"
+    if [ $# -gt 0 ]; then
+        cat "$1" | jq "$query"
+    else
+        cat | jq "$query"
+    fi
+}
+export -f jupyter_code_cells
+defn jcc jupyter_code_cells
+
 pyenv_list() {
   if [ $# -gt 0 ]; then
     pyenv versions | grep "$@"
@@ -237,8 +255,9 @@ export -f pyenv_find
 defn pyf pyenv_find
 
 defn nd nbdiff-web
-defn nbd nbdime diff
-defn nbds nbdime diff -s
+defn nbd nbdiff
+defn nbdi nbdiff -I
+defn nbds nbdiff -s
 defn nds nbdiff-web -s
 defn ndso nbdiff-web -so
 defn ndw nbdiff-web
@@ -316,6 +335,17 @@ defn nb2hm nb2 html,md
 
 defn rpd run-pydocker.sh
 
+defn juqc juq cells
+defn juqcc juq cells -tc
+defn juqcco juq cells -tc -o
+defn juqcm juq cells -m
+defn juqco juq cells -o
+defn juqcs juq cells -s
+defn juqpc juq papermill-clean
+defn juqpci juq papermill-clean -i
+defn juqmo juq merge-outputs
+defn juqmoi juq merge-outputs -i
+
 clean_notebook() {
     jq='.cells |= map(del(.id) | .metadata |= del(.papermill,.execution,.widgets)) | del(.metadata.papermill)'
     if [ $# -eq 0 ]; then
@@ -341,9 +371,18 @@ clean_notebook() {
 defn cnb clean_notebook
 
 papermill_clean() {
-    papermill "$@"
-    out=${@: -1}
-    echo "out: $out"
+    if [ $# -lt 2 ]; then
+        echo "Usage: $0 [...papermill args] <notebook path> <output path>" >&2
+        return 1
+    fi
+    in="${@: -2:1}"
+    echo "in: ${in[*]}"
+    out="${@: -1}"
+    if [ -d "$out" ]; then
+        out="${out%/}/$(basename "$in")"
+    fi
+    args=("${@:1:(($#-2))}")
+    papermill "${args[@]}" "$in" "$out"
     clean_notebook "$out"
 }
 export -f papermill_clean
