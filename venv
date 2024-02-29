@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -e
+
+base="${1:-"$(basename "$PWD")"}"
+shift
+version="${1:-${PYTHON_DEFAULT_VERSION}}"
+shift
+install_kernel=
+if [ "$1" == "-n" ]; then
+  install_kernel=1
+fi
+echo "$base $version"
+name="$base-$version"
+pyenv virtualenv "$version" "$name" && \
+pyenv local "$name"
+if [ -n "$install_kernel" ]; then
+  pip install --upgrade pip ipykernel && \
+  install_kernel
+fi

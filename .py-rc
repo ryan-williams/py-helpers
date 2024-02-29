@@ -80,19 +80,6 @@ default_python_version() {
 export -f default_python_version
 defn dpv default_python_version
 
-venv() {
-  base="${1:-"$(basename "$PWD")"}"
-  shift
-  version="${1:-${PYTHON_DEFAULT_VERSION}}"
-  shift
-  echo "$base $version"
-  name="$base-$version"
-  pyenv virtualenv "$version" "$name" && \
-  pyenv local "$name" && \
-  pip install --upgrade pip ipykernel && \
-  install_kernel
-}
-
 defn pci python-check-import
 defn ppp print-python-path
 defn pmp python-module-path
