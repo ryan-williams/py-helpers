@@ -15,6 +15,9 @@ name="$base-$version"
 pyenv virtualenv "$version" "$name" && \
 pyenv local "$name"
 if [ -n "$install_kernel" ]; then
+  echo "Installing Jupyter kernel" >&2
   pip install --upgrade pip ipykernel && \
   install_kernel
+else
+  echo "Skipping Jupyter kernel install" >&2
 fi
