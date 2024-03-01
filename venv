@@ -2,21 +2,30 @@
 
 set -e
 
+install_kernel=1
+args=()
+for arg in "$@"; do
+    if [ "$arg" == "-n" ]; then
+        install_kernel=
+    else
+        args+=("$arg")
+    fi
+done
+
+set -- "${args[@]}"
+
 base="${1:-"$(basename "$PWD")"}"
-shift
+shift || true
 version="${1:-${PYTHON_DEFAULT_VERSION}}"
-shift
-install_kernel=
-if [ "$1" == "-n" ]; then
-  install_kernel=1
-fi
+shift || true
+
 echo "$base $version"
 name="$base-$version"
-pyenv virtualenv "$version" "$name" && \
+pyenv virtualenv "$version" "$name"
 pyenv local "$name"
 if [ -n "$install_kernel" ]; then
   echo "Installing Jupyter kernel" >&2
-  pip install --upgrade pip ipykernel && \
+  pip install --upgrade pip ipykernel
   install_kernel
 else
   echo "Skipping Jupyter kernel install" >&2
