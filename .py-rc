@@ -136,6 +136,7 @@ fi
 
 defn jp jupyter
 defn jnb jupyter notebook
+defn jnbp jupyter notebook --port
 # Useful for running Jupyter in Docker (requires dangling port argument value, as written)
 defn jnbd jupyter notebook --ip 0.0.0.0 --ContentsManager.allow_hidden=True --allow-root --port
 defn jnc jupyter nbconvert
@@ -231,15 +232,16 @@ pyenv_list() {
   fi
 }
 export -f pyenv_list
-defn pys pyenv_list
+defn pyl pyenv_list
 
-defn pyl pyenv local
 defn pyg pyenv global
-pyenv_find() {
+defn pysg pyenv global
+defn pysl pyenv local
+pyenv_search() {
   pyenv install -l | grep "$@"
 }
-export -f pyenv_find
-defn pyf pyenv_find
+export -f pyenv_search
+defn pys pyenv_search
 
 defn nd nbdiff-web
 defn nbd nbdiff
