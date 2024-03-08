@@ -545,3 +545,6 @@ summarize_nb() {
 export -f summarize_nb
 defn snb summarize_nb
 defn sno summarize_nb
+
+defn hp hash-port.py
+defn hshp hash-port.py
