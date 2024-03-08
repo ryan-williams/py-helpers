@@ -2,11 +2,11 @@
 
 set -e
 
-install_kernel=1
+install_kernel=
 args=()
 for arg in "$@"; do
-    if [ "$arg" == "-n" ]; then
-        install_kernel=
+    if [ "$arg" == "-j" ]; then
+        install_kernel=1
     else
         args+=("$arg")
     fi
