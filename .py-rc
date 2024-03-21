@@ -63,6 +63,8 @@ export -f python_executable
 defn pex python_executable
 defn ppe python_executable
 
+defn pyi python -i
+
 alias apy="alias-which python"
 all_python_versions() {
   alias-which python && \
