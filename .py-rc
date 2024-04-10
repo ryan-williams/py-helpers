@@ -423,16 +423,32 @@ install_conda() {
         d="~/miniconda3"
         path_args=()
     fi
-    wget -Ominiconda.sh https://repo.anaconda.com/miniconda/Miniconda3-py39_23.1.0-1-Linux-x86_64.sh
+    os="$(uname -s)"
+    if [ "$os" == "Darwin" ]; then
+        os="MacOSX"
+    fi
+    arch="$(uname -m)"
+    base="https://repo.anaconda.com/miniconda"
+    name="$(curl "$base/" | grep "$os" | grep latest | grep -m1 "$arch" | grep -o 'Miniconda3.*sh">' | grep -o '.*.sh')"
+    if [ -z "$name" ]; then
+        echo "Failed to find Miniconda3 installer for $os $arch at $base" >&2
+        return 1
+    fi
+    sh_url="$base/$name"
+    echo "Downloading $sh_url" >&2
+    wget -Ominiconda.sh "$sh_url"
     bash miniconda.sh -b "${path_args[@]}"
     rm miniconda.sh
+    . $d/etc/profile.d/conda.sh
     echo ". $d/etc/profile.d/conda.sh" >> ~/.bashrc
-    conda="$d/bin/conda"
-    "$conda" install -y -n base conda-libmamba-solver
-    "$conda" config --set solver libmamba
+    # conda="$d/bin/conda"
+    conda install -y -n base conda-libmamba-solver
+    conda config --set solver libmamba
     # $conda config --set channel_priority flexible  # https://github.com/rapidsai/cuml/issues/4016
-    "$conda" activate base
+    conda activate base
 }
+export -f install_conda
+defn icd install_conda
 
 defn cdc conda config
 defn cdcg conda config --get
