@@ -567,3 +567,10 @@ defn sno summarize_nb
 
 defn hp hash-port.py
 defn hshp hash-port.py
+
+nbdime_enable() {
+    pip install nbdime
+    nbdime config-git --enable
+}
+export -f nbdime_enable
+defn nbde nbdime_enable
