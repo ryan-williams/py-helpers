@@ -588,7 +588,7 @@ conda_setup() {
         conda_sh="$CONDA_PREFIX/etc/profile.d/conda.sh"
         __conda_setup="$("$conda_bin/conda" shell.bash hook 2> /dev/null)"
         if [ $? -eq 0 ]; then
-            echo "**conda_setup"
+            debug "**conda_setup"
             eval "$__conda_setup"
         fi
     fi
@@ -602,16 +602,16 @@ if [ -n "$CONDA" ]; then
         conda_bin="$CONDA_PREFIX/bin"
         conda_sh="$CONDA_PREFIX/etc/profile.d/conda.sh"
         if [ -f "$conda_sh" ]; then
-            echo "** sourcing $conda_sh"
+            debug "** sourcing $conda_sh"
             . "$conda_sh"
         elif [ -d "$conda_bin" ]; then
-            echo "** prepending conda PATH: $conda_bin"
+            debug "** prepending conda PATH: $conda_bin"
             export PATH="$conda_bin:$PATH"
         fi
     elif [ -n "$CONDA_ROOT" ]; then  # e.g. export CONDA_ROOT=/opt/homebrew/Caskroom/mambaforge, on macOS/Homebrew
         __conda_setup="$("$CONDA_ROOT/base/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
         if [ $? -eq 0 ]; then
-            echo "** __conda_setup"
+            debug "** __conda_setup"
             eval "$__conda_setup"
         fi
     fi
