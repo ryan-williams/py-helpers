@@ -525,6 +525,8 @@ defn cls conda list
 defn cicf conda install -c conda-forge
 defn cscf conda search -c conda-forge
 defn cscfi conda search -c conda-forge --info
+defn csn conda search -c nvidia -c rapidsai
+defn csncf conda search -c nvidia -c rapidsai -c conda-forge
 defn cns conda search
 defn cnsi conda search --info
 defn cds conda search
