@@ -420,7 +420,7 @@ install_conda() {
         d="$1"
         path_args=(-p "$@")
     else
-        d="~/miniconda3"
+        d="$HOME/miniconda3"
         path_args=()
     fi
     os="$(uname -s)"
@@ -462,7 +462,7 @@ defn cel conda env list
 conda_env_update() {
     case "$1" in
         -h | --help)
-            echo "Usage: ${FUNCNAME[0]} [env name=basename [env file]]" >&2
+            echo "Usage: ${FUNCNAME[0]} [name=basename [env file]]" >&2
             return 0
         ;;
     esac
@@ -575,24 +575,37 @@ nbdime_enable() {
 export -f nbdime_enable
 defn nbde nbdime_enable
 
-if [ -n "$CONDA" ]; then
-    # >>> conda initialize >>>
-    # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$('/opt/homebrew/Caskroom/mambaforge/base/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-#    if [ $? -eq 0 ]; then
-#        echo "**conda_setup"
-#        eval "$__conda_setup"
-#    else
-        conda_sh="$CONDA_PREFIX/etc/profile.d/conda.sh"
+conda_setup() {
+    if [ -z "$CONDA_PREFIX" ]; then
         conda_bin="$CONDA_PREFIX/bin"
+        conda_sh="$CONDA_PREFIX/etc/profile.d/conda.sh"
+        __conda_setup="$("$conda_bin/conda" shell.bash hook 2> /dev/null)"
+        if [ $? -eq 0 ]; then
+            echo "**conda_setup"
+            eval "$__conda_setup"
+        fi
+    fi
+}
+export -f conda_setup
+defn csu conda_setup
+
+# Adapted from 'conda init' block / moved from ~/.bash_profile
+if [ -n "$CONDA" ]; then
+    if [ -n "$CONDA_PREFIX" ]; then
+        conda_bin="$CONDA_PREFIX/bin"
+        conda_sh="$CONDA_PREFIX/etc/profile.d/conda.sh"
         if [ -f "$conda_sh" ]; then
             echo "** sourcing $conda_sh"
             . "$conda_sh"
-        else
+        elif [ -d "$conda_bin" ]; then
             echo "** prepending conda PATH: $conda_bin"
             export PATH="$conda_bin:$PATH"
-	    fi
-#    fi
-    #unset __conda_setup
-    # <<< conda initialize <<<
+        fi
+    elif [ -n "$CONDA_ROOT" ]; then  # e.g. export CONDA_ROOT=/opt/homebrew/Caskroom/mambaforge, on macOS/Homebrew
+        __conda_setup="$("$CONDA_ROOT/base/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
+        if [ $? -eq 0 ]; then
+            echo "** __conda_setup"
+            eval "$__conda_setup"
+        fi
+    fi
 fi
