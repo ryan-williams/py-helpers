@@ -533,6 +533,11 @@ defn cds conda search
 defn cdsi conda search --info
 defn cdsj conda search --json
 
+defn cdu conda uninstall
+defn cduy conda uninstall -y
+defn cui conda uninstall
+defn cuiy conda uninstall -y
+
 conda_search_conda_forge() {
     flags=()
     args=()
