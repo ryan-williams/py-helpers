@@ -496,7 +496,22 @@ conda_env_update_activate() {
 }
 export -f conda_env_update_activate
 defn ceua conda_env_update_activate
-defn cac conda activate
+
+conda_activate() {
+    if [ $# -eq 0 ]; then
+        if [ -f .conda-env ]; then
+            env="$(cat .conda-env)"
+        else
+            env="$(basename "$PWD")"
+        fi
+        cmd=(conda activate "$env")
+        echo "${cmd[*]}" >&2
+        "${cmd[@]}"
+    else
+        conda activate "$@"
+    fi
+}
+defn cac conda_activate
 defn cab conda activate base
 conda_list() {
     # Call `conda list` on one or more packages
