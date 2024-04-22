@@ -121,7 +121,9 @@ defn cml conda_list  # conda "multi-list"
 defn cls conda list
 
 defn cicf conda install -c conda-forge
+defn cfs conda search -c conda-forge
 defn cscf conda search -c conda-forge
+defn cfi conda search -c conda-forge --info
 defn cscfi conda search -c conda-forge --info
 defn csn conda search -c nvidia -c rapidsai
 defn csncf conda search -c nvidia -c rapidsai -c conda-forge
