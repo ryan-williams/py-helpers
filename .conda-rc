@@ -125,6 +125,15 @@ export -f conda_list
 defn ctl conda_list
 defn cml conda_list  # conda "multi-list"
 defn cls conda list
+conda_list_grep() {
+    grep_args=()
+    for arg in "$@"; do
+        grep_args+=(-e "$arg")
+    done
+    conda list | grep -i "${grep_args[@]}"
+}
+export -f conda_list_grep
+defn clg conda_list_grep
 
 defn cicf conda install -c conda-forge
 defn cfs conda search -c conda-forge
