@@ -107,13 +107,19 @@ conda_list() {
             pkgs+=("$arg")
         fi
     done
-    for pkg in "${pkgs[@]}"; do
-        conda list "${flags[@]}" "$pkg"
-        rv=$?
-        if [ $rv -ne 0 ]; then
-            return $rv
-        fi
-    done
+    if which parallel &>/dev/null; then
+        for pkg in "${pkgs[@]}"; do
+            echo "$pkg"
+        done | parallel -j0 -k "conda list ${flags[*]}"
+    else
+        for pkg in "${pkgs[@]}"; do
+            conda list "${flags[@]}" "$pkg"
+            rv=$?
+            if [ $rv -ne 0 ]; then
+                return $rv
+            fi
+        done
+    fi | grep -v '^#'
 }
 export -f conda_list
 defn ctl conda_list
