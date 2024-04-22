@@ -1,0 +1,200 @@
+install_conda() {
+    if [ $# -gt 0 ]; then
+        d="$1"
+        path_args=(-p "$@")
+    else
+        d="$HOME/miniconda3"
+        path_args=()
+    fi
+    os="$(uname -s)"
+    if [ "$os" == "Darwin" ]; then
+        os="MacOSX"
+    fi
+    arch="$(uname -m)"
+    base="https://repo.anaconda.com/miniconda"
+    name="$(curl "$base/" | grep "$os" | grep latest | grep -m1 "$arch" | grep -o 'Miniconda3.*sh">' | grep -o '.*.sh')"
+    if [ -z "$name" ]; then
+        echo "Failed to find Miniconda3 installer for $os $arch at $base" >&2
+        return 1
+    fi
+    sh_url="$base/$name"
+    echo "Downloading $sh_url" >&2
+    wget -Ominiconda.sh "$sh_url"
+    bash miniconda.sh -b "${path_args[@]}"
+    rm miniconda.sh
+    . $d/etc/profile.d/conda.sh
+    echo ". $d/etc/profile.d/conda.sh" >> ~/.bashrc
+    # conda="$d/bin/conda"
+    conda install -y -n base conda-libmamba-solver
+    conda config --set solver libmamba
+    # $conda config --set channel_priority flexible  # https://github.com/rapidsai/cuml/issues/4016
+    conda activate base
+}
+export -f install_conda
+defn icd install_conda
+
+defn cdc conda config
+defn cdcg conda config --get
+defn cdcs conda config --set
+defn cdcgs conda config --get solver
+defn cdcss conda config --set solver
+defn cdcssm conda config --set solver libmamba
+defn cim conda install -y -n base conda-libmamba-solver
+
+defn cel conda env list
+conda_env_update() {
+    case "$1" in
+        -h | --help)
+            echo "Usage: ${FUNCNAME[0]} [name=basename [env file]]" >&2
+            return 0
+        ;;
+    esac
+    if [ $# -gt 0 ]; then
+        env="$1"; shift
+    else
+        env="$(basename "$PWD")"
+    fi
+    if [ $# -gt 0 ]; then
+        file_args=(-f "$1")
+        shift
+    else
+        file_args=()
+    fi
+    conda env update -n "$env" "${file_args[@]}"
+}
+export -f conda_env_update
+defn ceu conda_env_update
+conda_env_update_activate() {
+    conda_env_update "$@"
+    rv=$?
+    if [ $rv -ne 0 ]; then
+        return $rv
+    fi
+    if [ $# -gt 0 ]; then
+        env="$1"
+    else
+        env="$(basename "$PWD")"
+    fi
+    conda activate "$env"
+}
+export -f conda_env_update_activate
+defn ceua conda_env_update_activate
+
+conda_activate() {
+    if [ $# -eq 0 ]; then
+        if [ -f .conda-env ]; then
+            env="$(cat .conda-env)"
+        else
+            env="$(basename "$PWD")"
+        fi
+        cmd=(conda activate "$env")
+        echo "${cmd[*]}" >&2
+        "${cmd[@]}"
+    else
+        conda activate "$@"
+    fi
+}
+defn cac conda_activate
+defn cab conda activate base
+conda_list() {
+    # Call `conda list` on one or more packages
+    flags=()
+    pkgs=()
+    for arg in "$@"; do
+        if [[ "$arg" =~ "-*" ]]; then
+            flags+=("$arg")
+        else
+            pkgs+=("$arg")
+        fi
+    done
+    for pkg in "${pkgs[@]}"; do
+        conda list "${flags[@]}" "$pkg"
+        rv=$?
+        if [ $rv -ne 0 ]; then
+            return $rv
+        fi
+    done
+}
+export -f conda_list
+defn ctl conda_list
+defn cml conda_list  # conda "multi-list"
+defn cls conda list
+
+defn cicf conda install -c conda-forge
+defn cscf conda search -c conda-forge
+defn cscfi conda search -c conda-forge --info
+defn csn conda search -c nvidia -c rapidsai
+defn csncf conda search -c nvidia -c rapidsai -c conda-forge
+defn cns conda search
+defn cnsi conda search --info
+defn cds conda search
+defn cdsi conda search --info
+defn cdsj conda search --json
+
+defn cdu conda uninstall
+defn cduy conda uninstall -y
+defn cui conda uninstall
+defn cuiy conda uninstall -y
+
+conda_search_conda_forge() {
+    flags=()
+    args=()
+    for arg in "$@"; do
+        if [[ "$arg" == -* ]]; then
+            flags+=("$arg")
+        else
+            args+=("conda-forge::$arg")
+        fi
+    done
+    cmd=(conda search "${flags[@]}" "${args[@]}")
+    # echo "cmd: ${cmd[*]}" >&2
+    "${cmd[@]}"
+}
+export -f conda_search_conda_forge
+defn cdscf conda_search_conda_forge
+defn cdscfi conda_search_conda_forge --info
+
+defn cdf conda_deps_filter.py -f
+defn cdfh conda_deps_filter.py -h -f
+
+defn cdcn conda create -n
+defn cdcdn conda create -d -n
+
+defn cddd conda-docker-deps-diff.py
+
+conda_setup() {
+    if [ -z "$CONDA_PREFIX" ]; then
+        conda_bin="$CONDA_PREFIX/bin"
+        conda_sh="$CONDA_PREFIX/etc/profile.d/conda.sh"
+        __conda_setup="$("$conda_bin/conda" shell.bash hook 2> /dev/null)"
+        if [ $? -eq 0 ]; then
+            debug "**conda_setup"
+            eval "$__conda_setup"
+        fi
+    fi
+}
+export -f conda_setup
+defn csu conda_setup
+
+maybe_init_conda() {
+    # Adapted from 'conda init' block / moved from ~/.bash_profile
+    if [ -n "$CONDA" ]; then
+        if [ -n "$CONDA_PREFIX" ]; then
+            conda_bin="$CONDA_PREFIX/bin"
+            conda_sh="$CONDA_PREFIX/etc/profile.d/conda.sh"
+            if [ -f "$conda_sh" ]; then
+                debug "** sourcing $conda_sh"
+                . "$conda_sh"
+            elif [ -d "$conda_bin" ]; then
+                debug "** prepending conda PATH: $conda_bin"
+                export PATH="$conda_bin:$PATH"
+            fi
+        elif [ -n "$CONDA_ROOT" ]; then  # e.g. export CONDA_ROOT=/opt/homebrew/Caskroom/mambaforge, on macOS/Homebrew
+            __conda_setup="$("$CONDA_ROOT/base/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
+            if [ $? -eq 0 ]; then
+                debug "** __conda_setup"
+                eval "$__conda_setup"
+            fi
+        fi
+    fi
+}
