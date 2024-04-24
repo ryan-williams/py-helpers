@@ -162,6 +162,7 @@ export -f conda_env_remove_current
 defn cerc conda_env_remove_current
 
 defn cdu conda uninstall
+defn cdui conda uninstall
 defn cduy conda uninstall -y
 defn cui conda uninstall
 defn cuiy conda uninstall -y
