@@ -148,6 +148,19 @@ defn cds conda search
 defn cdsi conda search --info
 defn cdsj conda search --json
 
+defn ce conda env
+defn cer conda env remove
+defn cern conda env remove -n
+defn ceryn conda env remove -y -n
+
+conda_env_remove_current() {
+    env="$CONDA_DEFAULT_ENV"
+    conda activate base
+    conda env remove -n "$env" "$@"
+}
+export -f conda_env_remove_current
+defn cerc conda_env_remove_current
+
 defn cdu conda uninstall
 defn cduy conda uninstall -y
 defn cui conda uninstall
