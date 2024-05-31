@@ -22,9 +22,12 @@ defn jikp install_kernel_path
 defn jp jupyter
 defn jnb jupyter notebook
 defn jbp jupyter notebook --port
-defn jbpp jupyter notebook --data-dir .jupyter/share/jupyter --port
+jupyter_notebook_local_path() {
+    JUPYTER_PATH=.jupyter/share/jupyter jupyter notebook --port "$@"
+}
+defn jbpp jupyter_notebook_local_path
 jupyter_notebook_local_path_hash_port() {
-    JUPYTER_PATH=.jupyter/share/jupyter jupyter notebook --port "$(hash-port.py)"
+    jupyter_notebook_local_path "$(hash-port.py)"
 }
 export -f jupyter_notebook_local_path_hash_port
 defn jbphp jupyter_notebook_local_path_hash_port
