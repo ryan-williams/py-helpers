@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-defn ve virtualenv
+defn ve python -m virtualenv
+
+virtualenv_activate() {
+    python -m virtualenv "$1"
+    . "$1/bin/activate"
+}
+defn vea virtualenv_activate
 
 defn pidr pip install --dry-run
 defn piu pip install --upgrade
