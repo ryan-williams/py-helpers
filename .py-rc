@@ -96,6 +96,11 @@ defn py python-eval
 
 alias pyv="python --version"
 
+python_version() {
+    python --version 2>&1 | grep -o '[0-9.]\+'
+}
+defn pyvq python_version
+
 python_major_version() {
   python --version 2>&1 | grep -o '^Python [0-9]' | grep -o '[0-9]'
 }

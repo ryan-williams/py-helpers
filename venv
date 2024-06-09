@@ -16,8 +16,14 @@ set -- "${args[@]}"
 
 base="${1:-"$(basename "$PWD")"}"
 shift || true
-version="${1:-${PYTHON_DEFAULT_VERSION}}"
-shift || true
+if [ $# -eq 1 ]; then
+    version="$1"; shift
+elif [ $# -eq 0 ]; then
+    version="$(python --version 2>&1 | grep -o '[0-9.]\+')"
+else
+    echo "Usage: $0 [-j] [base [version]]" >&2
+    exit 1
+fi
 
 echo "$base $version"
 name="$base-$version"
