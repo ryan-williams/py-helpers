@@ -154,6 +154,15 @@ defn pss simple-server
 
 defn ptlf pytest --lf
 
+defn pun pyenv uninstall
+defn punf pyenv uninstall -f
+defn pyrm pyenv uninstall
+defn pyrmf pyenv uninstall -f
+defn pyui pyenv uninstall
+defn pyui pyenv uninstall -f
+defn pyun pyenv uninstall
+defn pyun pyenv uninstall -f
+
 poetry_deps() {
     cat pyproject.toml | yq -r -ptoml -oj '.tool.poetry.dependencies | to_entries | [ .[] | select(.key != "python") ] | map([.key, .value] | join("==")) | join("\n")'
 }
