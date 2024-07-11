@@ -186,3 +186,5 @@ export -f find_python_imports
 defn fpi find_python_imports
 
 maybe_init_conda
+
+defn pcr pre-commit run -a -v
