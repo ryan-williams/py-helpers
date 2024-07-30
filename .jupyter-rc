@@ -23,11 +23,11 @@ defn jp jupyter
 defn jnb jupyter notebook
 defn jbp jupyter notebook --port
 jupyter_notebook_local_path() {
-    JUPYTER_PATH=.jupyter/share/jupyter jupyter notebook --port "$@"
+    JUPYTER_PATH=.jupyter/share/jupyter jupyter notebook --ContentsManager.allow_hidden=true --port "$@"
 }
 defn jbpp jupyter_notebook_local_path
 jupyter_notebook_local_path_hash_port() {
-    jupyter_notebook_local_path "$(hash-port.py)"
+    jupyter_notebook_local_path "$(hash-port.py)" "$@"
 }
 export -f jupyter_notebook_local_path_hash_port
 defn jbphp jupyter_notebook_local_path_hash_port
