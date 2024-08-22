@@ -69,6 +69,21 @@ export -f python_executable
 defn pex python_executable
 defn ppe python_executable
 
+
+python_executable_copy() {
+    if which pbcopy &>/dev/null; then
+        copy=pbcopy
+    elif which xclip &>/dev/null; then
+        copy=xclip
+    else
+        echo "No clipboard utility found (looked for 'pbcopy', 'xclip')" >&2
+        return 1
+    fi
+    python_executable | head -c -1 | tee >($copy)
+}
+export -f python_executable_copy
+defn pxy python_executable_copy
+
 defn pyi python -i
 
 alias apy="alias-which python"
