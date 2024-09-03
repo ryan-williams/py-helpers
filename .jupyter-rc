@@ -256,8 +256,9 @@ defn pmc papermill_clean
 papermill_clean_inplace() {
     path=${@: -1}
     tmp="$(mktemp)"
-    papermill "$@" "$tmp"
-    clean_notebook "$tmp" "$path"
+    if papermill "$@" "$tmp"; then
+        clean_notebook "$tmp" "$path"
+    fi
 }
 export -f papermill_clean_inplace
 defn pmci papermill_clean_inplace
