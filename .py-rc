@@ -21,7 +21,10 @@ export -f piie
 
 defn pis pip search
 defn piun pip uninstall
+defn piuny pip uninstall -y
+defn piuy pip uninstall -y
 defn pui pip uninstall
+defn puy pip uninstall -y
 
 piui() {
   for arg in "$@"; do
