@@ -1,4 +1,4 @@
-install_kernel() {
+jupyter_install_kernel() {
   if [ $# -eq 0 ]; then
     if [ -n "$CONDA_DEFAULT_ENV" ]; then
         kernel="conda-$CONDA_DEFAULT_ENV"
@@ -11,13 +11,25 @@ install_kernel() {
   fi
   python -m ipykernel install --user --name "$kernel"
 }
-export -f install_kernel
-defn jik install_kernel
-install_kernel_path() {
+export -f jupyter_install_kernel
+defn jik jupyter_install_kernel
+jupyter_install_kernel_path() {
     python -m ipykernel install --prefix "${1:-.jupyter}"
 }
-export -f install_kernel_path
-defn jikp install_kernel_path
+export -f jupyter_install_kernel_path
+defn jikp jupyter_install_kernel_path
+
+jupyter_install_r_kernel() {
+  Rscript -e "IRkernel::installspec($1)"
+}
+export -f jupyter_install_r_kernel
+defn jirk jupyter_install_r_kernel
+
+jupyter_install_r_kernel_path() {
+    jupyter_install_r_kernel "prefix = '${1:-.jupyter}'"
+}
+export -f jupyter_install_r_kernel_path
+defn jirkp jupyter_install_r_kernel_path
 
 defn jp jupyter
 defn jnb jupyter notebook
