@@ -182,12 +182,12 @@ defn pyun pyenv uninstall
 defn pyun pyenv uninstall -f
 
 poetry_deps() {
-    cat pyproject.toml | yq -r -ptoml -oj '.tool.poetry.dependencies | to_entries | [ .[] | select(.key != "python") ] | map([.key, .value] | join("==")) | join("\n")'
+    yq -r -ptoml -oj '.tool.poetry.dependencies | to_entries | [ .[] | select(.key != "python") ] | map([.key, .value] | join("==")) | join("\n")' pyproject.toml
 }
 export -f poetry_deps
 
 poetry_dev_deps() {
-    cat pyproject.toml | yq -r -ptoml -oj '.tool.poetry.dev-dependencies | to_entries | map([.key, .value] | join("==")) | join("\n")'
+    yq -r -ptoml -oj '.tool.poetry.dev-dependencies | to_entries | map([.key, .value] | join("==")) | join("\n")' pyproject.toml
 }
 export -f poetry_dev_deps
 
@@ -206,3 +206,5 @@ defn fpi find_python_imports
 maybe_init_conda
 
 defn pcr pre-commit run -a -v
+
+alias pyt=pytest
