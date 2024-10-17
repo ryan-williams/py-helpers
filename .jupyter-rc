@@ -1,3 +1,6 @@
+defn ipykernel_install python -m ipykernel install
+defn jii python -m ipykernel install
+
 jupyter_install_kernel() {
   if [ $# -eq 0 ]; then
     if [ -n "$CONDA_DEFAULT_ENV" ]; then
@@ -14,10 +17,31 @@ jupyter_install_kernel() {
 export -f jupyter_install_kernel
 defn jik jupyter_install_kernel
 jupyter_install_kernel_path() {
+    if [ $# -gt 1 ]; then
+        echo "Usage«: jupyter_install_kernel_path [path=.jupyter]" >&2
+        return 1
+    fi
     python -m ipykernel install --prefix "${1:-.jupyter}"
 }
 export -f jupyter_install_kernel_path
 defn jikp jupyter_install_kernel_path
+
+jupyter_install_kernel_path_name() {
+    if [ $# -eq 1 ]; then
+        path=.jupyter
+        name="$1"; shift
+    elif [ $# -eq 2 ]; then
+        path="$1"; shift
+        name="$1"; shift
+    else
+        echo "Usage«: jupyter_install_kernel_path_name [path=.jupyter] <name>" >&2
+        return 1
+    fi
+    python -m ipykernel install --prefix "${1:-.jupyter}" --name "$name"
+}
+export -f jupyter_install_kernel_path_name
+defn jikpn jupyter_install_kernel_path_name
+defn jipn jupyter_install_kernel_path_name
 
 jupyter_install_r_kernel() {
   Rscript -e "IRkernel::installspec($1)"
@@ -207,6 +231,7 @@ defn nb2h convert_nb html
 
 defn nb2py convert_nb py
 defn nb2p convert_nb py
+defn n2p convert_nb py
 
 defn nb2hm nb2 html,md
 
