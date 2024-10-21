@@ -237,6 +237,7 @@ defn nb2hm nb2 html,md
 
 defn rpd run-pydocker.sh
 
+# https://github.com/runsascoded/juq / https://pypi.org/project/juq.py
 defn juqc juq cells
 defn juqcc juq cells -tc
 defn juqcco juq cells -tc -o
@@ -248,57 +249,15 @@ defn juqpci juq papermill-clean -i
 defn juqmo juq merge-outputs
 defn juqmoi juq merge-outputs -i
 
-clean_notebook() {
-    jq='.cells |= map(del(.id) | .metadata |= del(.papermill,.execution,.widgets)) | del(.metadata.papermill)'
-    if [ $# -eq 0 ]; then
-        cat | jq "$jq"
-    elif [ $# -eq 1 ]; then
-        out="$(mktemp)"
-        echo "Cleaning $1 in-place (temp file: $out)" >&2
-        jq "$jq" "$1" > "$out"
-        mv "$out" "$1"
-    elif [ $# -eq 2 ]; then
-        in="$1"; shift
-        out="$1"; shift
-        if [ -d "$out" ]; then
-            out="${out%/}/$(basename "$in")"
-        fi
-        echo "Cleaning $in, saving to $out" >&2
-        jq "$jq" "$in" > "$out"
-    else
-        echo "Usage: clean_notebook [path [out_path]]" >&2
-        return 1
-    fi
-}
-defn cnb clean_notebook
-
-papermill_clean() {
-    if [ $# -lt 2 ]; then
-        echo "Usage: $0 [...papermill args] <notebook path> <output path>" >&2
-        return 1
-    fi
-    in="${@: -2:1}"
-    echo "in: ${in[*]}"
-    out="${@: -1}"
-    if [ -d "$out" ]; then
-        out="${out%/}/$(basename "$in")"
-    fi
-    args=("${@:1:(($#-2))}")
-    papermill "${args[@]}" "$in" "$out"
-    clean_notebook "$out"
-}
-export -f papermill_clean
-defn pmc papermill_clean
-
-papermill_clean_inplace() {
-    path=${@: -1}
-    tmp="$(mktemp)"
-    if papermill "$@" "$tmp"; then
-        clean_notebook "$tmp" "$path"
-    fi
-}
-export -f papermill_clean_inplace
-defn pmci papermill_clean_inplace
+defn cnb juq papermill clean -i
+defn pmc juq papermill clean
+defn pmci juq papermill clean -i
+defn jpc juq papermill clean
+defn jpci juq papermill clean -i
+defn jpr juq papermill run
+defn jpri juq papermill run -i
+defn pmr juq papermill run
+defn pmri juq papermill run -i
 
 summarize_nb() {
     local cwd="$(dirname "${BASH_SOURCE[0]}")"
