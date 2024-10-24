@@ -70,6 +70,7 @@ python_executable() {
 }
 export -f python_executable
 defn pex python_executable
+defn pyx python_executable
 defn ppe python_executable
 
 
