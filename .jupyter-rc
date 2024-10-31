@@ -80,6 +80,9 @@ defn jyl jupyter notebook list
 defn jkl jupyter kernelspec list
 defn jyo jupyter-open.py
 
+defn jco jupyter nbconvert --clear-output
+defn jcoi jupyter nbconvert --clear-output --inplace
+
 jupyter_skip_slides() {
     if [ "$1" == "-i" ]; then
         shift
@@ -252,12 +255,16 @@ defn juqmoi juq merge-outputs -i
 defn cnb juq papermill clean -i
 defn pmc juq papermill clean
 defn pmci juq papermill clean -i
+defn pmcii juq papermill clean -iI
 defn jpc juq papermill clean
 defn jpci juq papermill clean -i
+defn jpcii juq papermill clean -iI
 defn jpr juq papermill run
 defn jpri juq papermill run -i
+defn jprii juq papermill run -iI
 defn pmr juq papermill run
 defn pmri juq papermill run -i
+defn pmrii juq papermill run -iI
 
 summarize_nb() {
     local cwd="$(dirname "${BASH_SOURCE[0]}")"
