@@ -135,6 +135,7 @@ conda_list_grep() {
 export -f conda_list_grep
 defn clg conda_list_grep
 
+defn cic conda install -c conda-forge
 defn cicf conda install -c conda-forge
 defn cfs conda search -c conda-forge
 defn cscf conda search -c conda-forge
