@@ -92,7 +92,7 @@ jupyter_skip_slides() {
         mv "$tmp" "$path"
     else
         if [ $# -ne 1 ]; then
-            echo "Usage: $0 [-i] <ipynb path>" >&2
+            echo "Usage: ${FUNCNAME[0]} [-i] <ipynb path>" >&2
             return 1
         fi
         path="$1"; shift
@@ -108,7 +108,7 @@ defn jpt jupyter-parse-table.py
 
 # See also: `juq cells -s <idx or slice> [path]`
 jupyter_cell_source() {
-    local usage="Usage: $0 [-s sep] <cell idx or range, jq syntax> [ipynb path]"
+    local usage="Usage: ${FUNCNAME[0]} [-s sep] <cell idx or range, jq syntax> [ipynb path]"
     local sep=
     if [ "$1" == "-s" ]; then
         shift
@@ -144,7 +144,7 @@ defn jcs jupyter_cell_source
 # See also: `juq cells -tc <idx or slice> [path]`
 jupyter_code_cells() {
     if [ $# -eq 0 ] || [ $# -gt 2 ]; then
-        echo "Usage: $0 <cell idx or range, jq syntax> [ipynb path]" >&2
+        echo "Usage: ${FUNCNAME[0]} <cell idx or range, jq syntax> [ipynb path]" >&2
         return 1
     fi
     local cells="$1"; shift
@@ -185,7 +185,7 @@ defn cjc copy_jupyter_config
 
 convert_nb() {
   if [ $# -lt 1 ]; then
-    echo "Illegal call to convert_nb wrapper; usage: $0 <output format> <input notebook> [output path]" >&2
+    echo "Illegal call to convert_nb wrapper; Usage: ${FUNCNAME[0]} <output format> <input notebook> [output path]" >&2
     return 1
   fi
   fmt="$1"; shift
@@ -203,7 +203,7 @@ convert_nb() {
     to="$fmt"
   fi
   if test $# -eq 0 || test $# -gt 2 ; then
-    echo "Usage: $0 <input path> [output path]" >&2
+    echo "Usage: ${FUNCNAME[0]} <input path> [output path]" >&2
     return 2
   fi
   input="$1"; shift
