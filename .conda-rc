@@ -36,6 +36,8 @@ defn icd install_conda
 defn cdc conda config
 defn cdcg conda config --get
 defn cdcs conda config --set
+defn ccgs conda config --get solver
+defn ccss conda config --set solver
 defn cdcgs conda config --get solver
 defn cdcss conda config --set solver
 defn cdcssm conda config --set solver libmamba
@@ -189,6 +191,7 @@ defn cdscfi conda_search_conda_forge --info
 defn cdf conda_deps_filter.py -f
 defn cdfh conda_deps_filter.py -h -f
 
+defn ccn conda create -n
 defn cdcn conda create -n
 defn cdcdn conda create -d -n
 
