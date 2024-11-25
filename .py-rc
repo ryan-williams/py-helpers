@@ -25,6 +25,13 @@ defn piuny pip uninstall -y
 defn piuy pip uninstall -y
 defn pui pip uninstall
 defn puy pip uninstall -y
+pip_reinstall() {
+  pip uninstall -y "$@"
+  pip install "$@"
+}
+export -f pip_reinstall
+defn piri pip_reinstall
+defn puyi pip_reinstall
 
 piui() {
   for arg in "$@"; do
