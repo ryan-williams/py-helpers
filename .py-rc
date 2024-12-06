@@ -82,15 +82,11 @@ defn ppe python_executable
 
 
 python_executable_copy() {
-    if which pbcopy &>/dev/null; then
-        copy=pbcopy
-    elif which xclip &>/dev/null; then
-        copy=xclip
-    else
-        echo "No clipboard utility found (looked for 'pbcopy', 'xclip')" >&2
-        return 1
-    fi
-    python_executable | head -c -1 | tee >($copy)
+  if ! which copy &>/dev/null && ! declare -F copy &>/dev/null; then
+    echo '`copy` command not found' >&2
+    return 1
+  fi
+  python_executable | head -c -1 | tee >(copy)
 }
 export -f python_executable_copy
 defn pxy python_executable_copy
