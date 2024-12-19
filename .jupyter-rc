@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 defn ipykernel_install python -m ipykernel install
 defn jii python -m ipykernel install
 
@@ -283,3 +285,9 @@ nbdime_enable() {
 }
 export -f nbdime_enable
 defn nbde nbdime_enable
+
+notebook_reindent_delete_ids() {
+    jqi4a '.cells |= map(del(.id))' "$@"
+}
+export -f notebook_reindent_delete_ids
+defn nrdi notebook_reindent_delete_ids
