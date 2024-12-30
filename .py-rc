@@ -200,6 +200,7 @@ defn pys pyenv_search
 defn pss simple-server
 
 defn ptlf pytest --lf
+defn pylf pytest --lf
 
 defn pun pyenv uninstall
 defn punf pyenv uninstall -f
