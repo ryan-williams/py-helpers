@@ -249,8 +249,8 @@ defn juqcco juq cells -tc -o
 defn juqcm juq cells -m
 defn juqco juq cells -o
 defn juqcs juq cells -s
-defn juqpc juq papermill-clean
-defn juqpci juq papermill-clean -i
+defn jmo juq merge-outputs
+defn jmoi juq merge-outputs -i
 defn juqmo juq merge-outputs
 defn juqmoi juq merge-outputs -i
 
@@ -261,12 +261,19 @@ defn pmcii juq papermill clean -iI
 defn jpc juq papermill clean
 defn jpci juq papermill clean -i
 defn jpcii juq papermill clean -iI
+defn juqpc juq papermill-clean
+defn juqpci juq papermill-clean -i
+
 defn jpr juq papermill run
 defn jpri juq papermill run -i
 defn jprii juq papermill run -iI
+defn jri juq papermill run -i
+defn jrii juq papermill run -iI
 defn pmr juq papermill run
 defn pmri juq papermill run -i
 defn pmrii juq papermill run -iI
+defn pri juq papermill run -i
+defn prii juq papermill run -iI
 
 summarize_nb() {
     local cwd="$(dirname "${BASH_SOURCE[0]}")"
