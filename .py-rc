@@ -142,7 +142,7 @@ export -f epp
 
 if [ -z "$CONDA" ]; then
     if ! which pyenv &>/dev/null && [ -e "$HOME/.pyenv/bin" ]; then
-      prepend_to_path "$HOME/.pyenv/bin"
+      export PATH="$HOME/.pyenv/bin:$PATH"
     fi
     if which pyenv &>/dev/null; then
       export PYENV_ROOT="$HOME/.pyenv"
