@@ -8,7 +8,7 @@ jupyter_install_kernel() {
     if [ -n "$CONDA_DEFAULT_ENV" ]; then
         kernel="conda-$CONDA_DEFAULT_ENV"
     else
-        kernel="$(pyenv version | first)"
+        kernel="$(pyenv version | awk '{print $1}')"
     fi
   else
     kernel="$1"
@@ -23,7 +23,8 @@ jupyter_install_kernel_path() {
         echo "Usage«: jupyter_install_kernel_path [path=.jupyter]" >&2
         return 1
     fi
-    python -m ipykernel install --prefix "${1:-.jupyter}"
+    display_name="$(python --version)"
+    python -m ipykernel install --prefix "${1:-.jupyter}" --display-name "$display_name"
 }
 export -f jupyter_install_kernel_path
 defn jikp jupyter_install_kernel_path
