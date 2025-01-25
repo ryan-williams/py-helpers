@@ -1,4 +1,11 @@
-#!/usr/bin/env bash
+
+set_pythonstartup() {
+  if [ -z "$PYTHONSTARTUP" ]; then
+    local py_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+    export PYTHONSTARTUP=$py_dir/startup.py
+  fi
+}
+set_pythonstartup
 
 defn ve python -m virtualenv
 
