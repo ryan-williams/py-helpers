@@ -1,5 +1,5 @@
-# Base Dockerfile for Python projects; recent Git, pandas/jupyter/sqlalchemy, and dotfiles for working in-container
-FROM python:3.8-slim
+# Example Dockerfile for Python projects; install Git, pandas/jupyter/sqlalchemy, and dotfiles for working in-container
+FROM python:3.12-slim
 
 # Disable pip version check
 SHELL ["/bin/bash", "-c"]
