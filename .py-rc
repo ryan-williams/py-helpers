@@ -116,6 +116,7 @@ default_python_version() {
 }
 export -f default_python_version
 defn dpv default_python_version
+defn pdv default_python_version
 
 defn pci python-check-import
 defn ppp print-python-path
