@@ -262,3 +262,15 @@ maybe_init_conda
 defn pcr pre-commit run -a -v
 
 alias pyt=pytest
+
+defn mr memray run
+defn mrn memray run --native
+defn mrno memray run --native -o
+defn mrano memray run --aggregate --native -o
+defn mf memray flamegraph
+defn mfg memray flamegraph
+defn mfgo memray flamegraph -o
+defn mfo memray flamegraph -o
+defn ms memray stats
+defn msj memray stats --json
+defn msjo memray stats --json -o
