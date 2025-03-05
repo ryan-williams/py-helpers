@@ -288,11 +288,17 @@ defn hp hash-port.py
 defn hshp hash-port.py
 
 nbdime_enable() {
+    local global=()
+    if [ "$1" = -g ]; then
+        global=(--global)
+    fi
     pip install nbdime
-    nbdime config-git --enable
+    nbdime config-git --enable "${global[@]}"
 }
 export -f nbdime_enable
-defn nbde nbdime_enable
+defn nbde nbdime_enable -g
+defn nbdeg nbdime_enable -g
+defn nbdel nbdime_enable
 
 notebook_reindent_delete_ids() {
     jqi4a '.cells |= map(del(.id))' "$@"
