@@ -266,6 +266,8 @@ alias pyt=pytest
 defn mr memray run
 defn mrn memray run --native
 defn mrno memray run --native -o
+defn mrnfo memray run --native -fo
+defn mra memray run --native --follow-fork --trace-python-allocators -fo
 defn mrano memray run --aggregate --native -o
 defn mf memray flamegraph
 defn mfg memray flamegraph
