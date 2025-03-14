@@ -327,7 +327,18 @@ git_notebook_diff_flags() {
     echo "    echo \"*.ipynb diff=nb\" >> $attrs_file" >&2
     exit 1
   fi
-  local cmd=(git config "${global[@]}" "diff.$attr.command" "git-nbdiffdriver diff $*")
+  local cmd
+  cmd=(git config "${global[@]}" "diff.$attr.command")
+  if [ $# -eq 0 ]; then
+    # Print config
+    true
+  elif [ $# -eq 1 ] && [ -z "$1" ]; then
+    # Unset flags
+    cmd+=("git-nbdiffdriver diff")
+  else
+    # Set flags
+    cmd+=("git-nbdiffdriver diff $*")
+  fi
   echo "${cmd[@]}" >&2
   "${cmd[@]}"
 }
