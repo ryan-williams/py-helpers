@@ -312,21 +312,23 @@ git_notebook_diff_flags() {
     global=(--global)
     shift
   fi
-  local attr="$(git attr-diff-type foo.ipynb)"
+  local attr
+  attr="$(git attr-diff-type foo.ipynb)"
   if [ -z "$attr" ]; then
     echo 'No .gitattributes found for *.ipynb; try:' >&2
     echo '' >&2
-    local attrs_file="$(git config core.attributesfile)"
+    local attrs_file
+    attrs_file="$(git config core.attributesfile)"
     if [ -z "$attrs_file" ]; then
       echo '    git config --global core.attributesfile ~/.gitattributes' >&2
     else
-      attrs_file='~/.gitattributes'
+      attrs_file="$HOME/.gitattributes"
     fi
     echo "    echo \"*.ipynb diff=nb\" >> $attrs_file" >&2
     exit 1
   fi
   local cmd=(git config "${global[@]}" "diff.$attr.command" "git-nbdiffdriver diff $*")
-  echo "${cmd[@]}"
+  echo "${cmd[@]}" >&2
   "${cmd[@]}"
 }
 export -f git_notebook_diff_flags
