@@ -297,6 +297,7 @@ nbdime_enable() {
 }
 export -f nbdime_enable
 defn nbde nbdime_enable -g
+defn nbdg nbdime_enable -g
 defn nbdeg nbdime_enable -g
 defn nbdel nbdime_enable
 
@@ -325,7 +326,7 @@ git_notebook_diff_flags() {
       attrs_file="$HOME/.gitattributes"
     fi
     echo "    echo \"*.ipynb diff=nb\" >> $attrs_file" >&2
-    exit 1
+    return 1
   fi
   local cmd
   cmd=(git config "${global[@]}" "diff.$attr.command")
@@ -344,4 +345,6 @@ git_notebook_diff_flags() {
 }
 export -f git_notebook_diff_flags
 defn gndf git_notebook_diff_flags
+alias gndfu="git_notebook_diff_flags ''"
 defn gndg git_notebook_diff_flags -g
+alias gndgu="git_notebook_diff_flags -g ''"
