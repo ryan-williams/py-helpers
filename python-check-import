@@ -6,6 +6,10 @@ if [ $# -eq 2 ]; then
     python -c "from $1 import $2"
 elif [ $# -eq 1 ]; then
     python -c "import $1"
+elif [ $# -eq 3 ] && [ "$2" == import ]; then
+    python -c "from $1 import $3"
+elif [ $# -eq 4 ] && [ "$1" == from ] && [ "$3" == import ]; then
+    python -c "from $2 import $4"
 else
     echo "Usage: $0 <import>" >&2
     echo "Usage: $0 <from> <import>" >&2
