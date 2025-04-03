@@ -177,9 +177,9 @@ install_pyenv() {
     cmd=($sudo apt-get install -y build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev)
   elif which yum &>/dev/null; then
     if [ -f /etc/system-release ] && grep -q "Amazon Linux release 2" /etc/system-release; then
-      cmd=($sudo yum install gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl11-devel tk-devel libffi-devel xz-devel)
+      cmd=($sudo yum install -y gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl11-devel tk-devel libffi-devel xz-devel)
     else
-      cmd=($sudo yum install gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel)
+      cmd=($sudo yum install -y gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel)
     fi
   elif which apk &>/dev/null; then
     cmd=($sudo apk add --no-cache git bash build-base libffi-dev openssl-dev bzip2-dev zlib-dev xz-dev readline-dev sqlite-dev tk-dev)
@@ -198,6 +198,7 @@ install_pyenv() {
     echo "Installing Python $1" >&2
     pyenv install "$1" || return 1
     pyenv global "$1"
+    pip install --update pip
     python --version
   fi
 }
