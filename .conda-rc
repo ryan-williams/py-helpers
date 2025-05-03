@@ -171,6 +171,28 @@ defn cer conda env remove
 defn cern conda env remove -n
 defn ceryn conda env remove -y -n
 
+conda_current_env() {
+  if [ -z "$CONDA_DEFAULT_ENV" ]; then
+    return 1
+  else
+    echo $CONDA_DEFAULT_ENV
+  fi
+}
+export -f conda_current_env
+defn cce conda_current_env
+
+conda_current_prefix() {
+  local active_prefix=$(conda info --envs --json | jq -r '.active_prefix // empty')
+  if [ -z "$active_prefix" ]; then
+    return 1
+  else
+    echo "$active_prefix"
+    return 0
+  fi
+}
+export -f conda_current_prefix
+defn ccp conda_current_prefix
+
 conda_env_remove_current() {
     env="$CONDA_DEFAULT_ENV"
     conda activate base
@@ -178,6 +200,8 @@ conda_env_remove_current() {
 }
 export -f conda_env_remove_current
 defn cerc conda_env_remove_current
+
+defn cda conda deactivate
 
 defn cdu conda uninstall
 defn cdui conda uninstall
