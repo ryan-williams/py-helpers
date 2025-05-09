@@ -340,7 +340,7 @@ git_notebook_diff_flags() {
     # Set flags
     cmd+=("git-nbdiffdriver diff $*")
   fi
-  echo "${cmd[@]}" >&2
+  echo "${cmd[*]}" >&2
   "${cmd[@]}"
 }
 export -f git_notebook_diff_flags
