@@ -2,6 +2,8 @@
 
 defn ipykernel_install python -m ipykernel install
 defn jii python -m ipykernel install
+defn jki python -m ipykernel install
+defn jkin python -m ipykernel install --name
 
 jupyter_install_kernel() {
   if [ $# -eq 0 ]; then
