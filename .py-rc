@@ -279,3 +279,5 @@ defn msj memray stats --json
 defn msjo memray stats --json -o
 
 defn phs python -m http.server
+
+defn dsr datasette --reload --open
