@@ -110,7 +110,7 @@ all_python_versions() {
 export -f all_python_versions
 defn apv all_python_versions
 
-export PYTHON_DEFAULT_VERSION=3.11.8
+export PYTHON_DEFAULT_VERSION=3.12.9
 default_python_version() {
     echo "$PYTHON_DEFAULT_VERSION"
 }
