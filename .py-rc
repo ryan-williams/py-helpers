@@ -198,7 +198,7 @@ install_pyenv() {
     echo "Installing Python $1" >&2
     pyenv install "$1" || return 1
     pyenv global "$1"
-    pip install --update pip
+    pip install --upgrade pip
     python --version
   fi
 }
