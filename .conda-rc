@@ -249,22 +249,50 @@ conda_setup() {
 export -f conda_setup
 defn csu conda_setup
 
-maybe_init_conda() {
-    # Adapted from 'conda init' block / moved from ~/.bash_profile
-    if [ -n "$CONDA" ]; then
-        if [ -n "$CONDA_PREFIX" ]; then
-            conda_bin="$CONDA_PREFIX/bin"
-            conda_sh="$CONDA_PREFIX/etc/profile.d/conda.sh"
-            if [ -f "$conda_sh" ]; then
-                . "$conda_sh"
-            elif [ -d "$conda_bin" ]; then
-                export PATH="$conda_bin:$PATH"
-            fi
-        elif [ -n "$CONDA_ROOT" ]; then  # e.g. export CONDA_ROOT=/opt/homebrew/Caskroom/mambaforge, on macOS/Homebrew
-            __conda_setup="$("$CONDA_ROOT/base/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
-            if [ $? -eq 0 ]; then
-                eval "$__conda_setup"
-            fi
+activate_conda() {
+    if [ -n "$CONDA_PREFIX" ]; then
+        conda_bin="$CONDA_PREFIX/bin"
+        conda_sh="$CONDA_PREFIX/etc/profile.d/conda.sh"
+        if [ -f "$conda_sh" ]; then
+            . "$conda_sh"
+        elif [ -d "$conda_bin" ]; then
+            export PATH="$conda_bin:$PATH"
         fi
+    elif [ -n "$CONDA_ROOT" ]; then  # e.g. export CONDA_ROOT=/opt/homebrew/Caskroom/mambaforge, on macOS/Homebrew
+        __conda_setup="$("$CONDA_ROOT/base/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
+        if [ $? -eq 0 ]; then
+            eval "$__conda_setup"
+        fi
+    else
+        conda activate base
     fi
 }
+
+maybe_init_conda() {
+  # Adapted from 'conda init' block / moved from ~/.bash_profile
+  if [ -n "$CONDA" ]; then
+    activate_conda
+  fi
+}
+
+enable_conda() {
+  local env=
+  if [ $# -eq 1 ]; then
+    env="$1"; shift
+  elif [ $# -gt 0 ]; then
+    echo "Usage: ${FUNCNAME[0]} [env_name]" >&2
+    return 1
+  fi
+  export CONDA=1
+  activate_conda
+  if [ -n "$env" ]; then
+    conda activate "$env"
+  fi
+}
+alias cde="enable_conda"
+
+disable_conda() {
+  conda deactivate
+  activate_pyenv
+}
+alias cdx="disable_conda"

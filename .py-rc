@@ -20,6 +20,7 @@ defn piu pip install --upgrade
 defn piup pip install --upgrade pip
 defn piuu pip install --user --upgrade
 defn pii pip install
+defn piii pip install --no-build-isolation
 defn pif pip show
 piie() {
     pip install -e "${@:-.}"
@@ -141,7 +142,7 @@ epp() {
 }
 export -f epp
 
-if [ -z "$CONDA" ]; then
+activate_pyenv() {
     if ! which pyenv &>/dev/null && [ -e "$HOME/.pyenv/bin" ]; then
       export PATH="$HOME/.pyenv/bin:$PATH"
     fi
@@ -151,6 +152,10 @@ if [ -z "$CONDA" ]; then
       eval "$(pyenv init --path)"
       eval "$(pyenv virtualenv-init -)"
     fi
+}
+
+if [ -z "$CONDA" ]; then
+    activate_pyenv
 fi
 
 if which brew &>/dev/null; then
