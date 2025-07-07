@@ -2,14 +2,23 @@
 
 set -e
 
+err() {
+  echo "Running: $*" >&2
+}
+
+run() {
+  err "$*"
+  "$@"
+}
+
 install_kernel=
 args=()
 for arg in "$@"; do
-    if [ "$arg" == "-j" ]; then
-        install_kernel=1
-    else
-        args+=("$arg")
-    fi
+  if [ "$arg" == "-j" ]; then
+    install_kernel=1
+  else
+    args+=("$arg")
+  fi
 done
 
 set -- "${args[@]}"
@@ -17,22 +26,34 @@ set -- "${args[@]}"
 base="${1:-"$(basename "$PWD")"}"
 shift || true
 if [ $# -eq 1 ]; then
-    version="$1"; shift
+  version="$1"; shift
 elif [ $# -eq 0 ]; then
-    version="$(python --version 2>&1 | grep -o '[0-9.]\+')"
+  version="$(python --version 2>&1 | grep -o '[0-9.]\+')"
 else
-    echo "Usage: $0 [-j] [base [version]]" >&2
-    exit 1
+  err "Usage: $0 [-j] [base [version]]"
+  exit 1
 fi
 
-echo "$base $version"
 name="$base-$version"
-pyenv virtualenv "$version" "$name"
-pyenv local "$name"
+run pyenv virtualenv "$version" "$name"
+if git ls-files --error-unmatch .python-version &>/dev/null; then
+  err "Found git-tracked .python-version file"
+  if which direnv &>/dev/null; then
+    err "Adding direnv hook"
+    echo "export PYENV_VERSION=$name" >> .envrc
+    direnv allow
+  else
+    err "direnv not found, no hook added"
+    exit 1
+  fi
+else
+  run pyenv local "$name"
+fi
+
 if [ -n "$install_kernel" ]; then
-  echo "Installing Jupyter kernel" >&2
+  err "Installing Jupyter kernel"
   pip install --upgrade pip ipykernel
   install_kernel
 else
-  echo "Skipping Jupyter kernel install" >&2
+  err "Skipping Jupyter kernel install"
 fi
