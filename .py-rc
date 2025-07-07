@@ -234,6 +234,7 @@ defn pylf pytest --lf
 
 defn pun pyenv uninstall
 defn punf pyenv uninstall -f
+defn puny pyenv uninstall -f
 defn pyrm pyenv uninstall
 defn pyrmf pyenv uninstall -f
 defn pyui pyenv uninstall
