@@ -162,8 +162,10 @@ if which brew &>/dev/null; then
   pyei() {
     CPPFLAGS="-I$(brew --prefix zlib)/include -I$(brew --prefix sqlite)/include" pyenv install "$@"
   }
+  alias pyiv="pyei -v"
 else
   defn pyei pyenv install
+  alias pyiv="pyenv install -v"
 fi
 
 install_pyenv() {
@@ -201,7 +203,7 @@ install_pyenv() {
   local uname="$(uname)"
   if [ -n "$1" ]; then
     echo "Installing Python $1" >&2
-    pyenv install "$1" || return 1
+    pyenv install -v "$1" || return 1
     pyenv global "$1"
     pip install --upgrade pip
     python --version
