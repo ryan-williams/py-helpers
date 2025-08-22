@@ -7,6 +7,10 @@ set_pythonstartup() {
 }
 set_pythonstartup
 
+# Source direnv helpers
+py_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+[ -f "$py_dir/direnv-helpers.sh" ] && source "$py_dir/direnv-helpers.sh"
+
 defn ve python -m virtualenv
 
 virtualenv_activate() {
