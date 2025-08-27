@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+# UV (Python package manager) aliases and functions
+
+# Basic UV commands
+alias uvs="uv sync"
+alias uvsf="uv sync --frozen"
+alias uvsd="uv sync --dev"
+alias uvsn="uv sync --no-dev"
+alias uva="uv add"
+alias uvad="uv add --dev"
+alias uvr="uv remove"
+alias uvrd="uv remove --dev"
+alias uvl="uv lock"
+alias uvi="uv install"
+alias uvp="uv pip"
+alias uvpi="uv pip install"
+alias uvpu="uv pip uninstall"
+alias uvpl="uv pip list"
+alias uvps="uv pip show"
+alias uvv="uv venv"
+alias uvrun="uv run"
+
+# UV with common flags
+alias uvsi="uv sync && uv pip install -e ."  # Sync and install editable
+alias uvsq="uv sync --quiet"
+alias uvsv="uv sync --verbose"
+
+# UV Python version management
+alias uvpy="uv python"
+alias uvpyl="uv python list"
+alias uvpyi="uv python install"
+alias uvpyp="uv python pin"
+
+# Show current UV project info
+uv_info() {
+    if [ -f "uv.lock" ] || [ -f "pyproject.toml" ]; then
+        echo "UV Project Info:"
+        echo "================"
+        if [ -f "pyproject.toml" ]; then
+            echo "Project: $(grep '^name' pyproject.toml | cut -d'"' -f2 2>/dev/null || echo 'unnamed')"
+        fi
+        if [ -f ".python-version" ]; then
+            echo "Python: $(cat .python-version)"
+        elif [ -f "pyproject.toml" ]; then
+            echo "Python: $(grep 'requires-python' pyproject.toml | cut -d'"' -f2 2>/dev/null || echo 'not specified')"
+        fi
+        if [ -d ".venv" ]; then
+            echo "Venv: .venv (exists)"
+        else
+            echo "Venv: .venv (not created)"
+        fi
+        if [ -f "uv.lock" ]; then
+            echo "Lock: uv.lock ($(wc -l < uv.lock) lines)"
+        else
+            echo "Lock: not found"
+        fi
+    else
+        echo "Not a UV project (no uv.lock or pyproject.toml found)"
+    fi
+}
+alias uvi="uv_info"
+alias uvinfo="uv_info"
+
+# Quick UV project initialization
+uv_init() {
+    local name="${1:-$(basename "$PWD")}"
+    uv init --name "$name"
+    uv add --dev pytest ruff mypy
+    echo "Initialized UV project: $name"
+}
+alias uvinit="uv_init"

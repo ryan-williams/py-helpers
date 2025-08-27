@@ -22,8 +22,14 @@ export -f define_if_absent
 # Set up Python direnv - add the source line to .envrc
 set_python_direnv() {
     local py_dir="$HOME/.rc/py"
-    local source_line="source $py_dir/python-direnv.sh && setup_python_direnv"
+    local with_source_up="${1:-false}"
 
+    # Add source_up if requested or if parent has .envrc
+    if [[ "$with_source_up" == "true" ]] || [[ -f "../.envrc" ]]; then
+        define_if_absent "source_up" .envrc
+    fi
+
+    local source_line="source $py_dir/python-direnv.sh && setup_python_direnv"
     define_if_absent "$source_line" .envrc
 
     # Auto-allow if direnv is available
