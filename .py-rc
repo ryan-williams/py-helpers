@@ -9,8 +9,9 @@ set_pythonstartup
 
 # Source additional helpers
 py_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-[ -f "$py_dir/direnv-helpers.sh" ] && source "$py_dir/direnv-helpers.sh"
+[ -f "$py_dir/py-direnv-init.sh" ] && source "$py_dir/py-direnv-init.sh"
 [ -f "$py_dir/.uv-rc" ] && source "$py_dir/.uv-rc"
+[ -f "$py_dir/python-env-type.sh" ] && source "$py_dir/python-env-type.sh"
 
 defn ve python -m virtualenv
 
@@ -86,7 +87,28 @@ pir() {
 export -f pir
 
 python_executable() {
-  python -c 'import sys; print(sys.executable)'
+  local exe=$(python -c 'import sys; print(sys.executable)')
+
+  # Case 1: If it's through .venv/cur, resolve it to the actual version
+  if [[ "$exe" == *"/.venv/cur/bin/python" ]]; then
+    local base_dir="${exe%/.venv/cur/bin/python}"
+    if [[ -L "$base_dir/.venv/cur" ]]; then
+      local resolved=$(readlink "$base_dir/.venv/cur")
+      exe="$base_dir/.venv/$resolved/bin/python"
+    fi
+  # Case 2: If it's .venv/bin/python (could be symlink to versioned dir)
+  elif [[ "$exe" == *"/.venv/bin/python" ]]; then
+    local base_dir="${exe%/.venv/bin/python}"
+    # Check if .venv/bin is a symlink
+    if [[ -L "$base_dir/.venv/bin" ]]; then
+      local resolved=$(readlink "$base_dir/.venv/bin")
+      # resolved might be like "3.11.X/bin" or "../3.11.X/bin"
+      resolved="${resolved%/bin}"  # Remove /bin suffix
+      exe="$base_dir/.venv/$resolved/bin/python"
+    fi
+  fi
+
+  echo "$exe"
 }
 export -f python_executable
 defn pex python_executable
@@ -110,7 +132,6 @@ alias apy="alias-which python"
 all_python_versions() {
   alias-which python && \
   python --version && \
-  (! type pyenv &>/dev/null || pyenv version) && \
   python_executable
 }
 export -f all_python_versions
@@ -147,107 +168,21 @@ epp() {
 }
 export -f epp
 
-activate_pyenv() {
-    if ! which pyenv &>/dev/null && [ -e "$HOME/.pyenv/bin" ]; then
-      export PATH="$HOME/.pyenv/bin:$PATH"
-    fi
-    if which pyenv &>/dev/null; then
-      export PYENV_ROOT="$HOME/.pyenv"
-      export PATH="$PYENV_ROOT/bin:$PATH"
-      eval "$(pyenv init --path)"
-      eval "$(pyenv virtualenv-init -)"
-    fi
-}
+# pyenv functionality removed - using uv for Python management
 
-if [ -z "$CONDA" ]; then
-    activate_pyenv
-fi
+# pyenv install commands removed - use uv for Python management
 
-if which brew &>/dev/null; then
-  pyei() {
-    CPPFLAGS="-I$(brew --prefix zlib)/include -I$(brew --prefix sqlite)/include" pyenv install "$@"
-  }
-  alias pyiv="pyei -v"
-else
-  defn pyei pyenv install
-  alias pyiv="pyenv install -v"
-fi
+# pyenv install function removed - use uv for Python management
 
-install_pyenv() {
-  if which -a pyenv; then
-    echo "pyenv appears to already by installed" >&2
-    return 1
-  fi
-  local sudo=
-  if [ "$USER" != root ] && [ "$(whoami)" != root ]; then
-    sudo=sudo
-  fi
-  # Attempt to install Python dependencies for current OS, per https://github.com/pyenv/pyenv/wiki
-  local cmd
-  if which apt &>/dev/null; then
-    $sudo apt update -y || return 1
-    cmd=($sudo apt-get install -y build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev)
-  elif which yum &>/dev/null; then
-    if [ -f /etc/system-release ] && grep -q "Amazon Linux release 2" /etc/system-release; then
-      cmd=($sudo yum install -y gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl11-devel tk-devel libffi-devel xz-devel)
-    else
-      cmd=($sudo yum install -y gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel)
-    fi
-  elif which apk &>/dev/null; then
-    cmd=($sudo apk add --no-cache git bash build-base libffi-dev openssl-dev bzip2-dev zlib-dev xz-dev readline-dev sqlite-dev tk-dev)
-  elif which brew &>/dev/null; then
-    cmd=(brew install openssl readline sqlite3 xz zlib tcl-tk@8)
-  else
-    echo "Didn't find "'`apt`, `yum`, `apk`, or `brew`' >&2
-    return 1
-  fi
-  echo "Attempting to install dependencies: ${cmd[*]}" >&2
-  "${cmd[@]}" || return 1
-  curl https://pyenv.run | bash
-  source "$HOME/.bashrc"
-  local uname="$(uname)"
-  if [ -n "$1" ]; then
-    echo "Installing Python $1" >&2
-    pyenv install -v "$1" || return 1
-    pyenv global "$1"
-    pip install --upgrade pip
-    python --version
-  fi
-}
-
-pyenv_list() {
-  if [ $# -gt 0 ]; then
-    pyenv versions | grep "$@"
-  else
-    pyenv versions
-  fi
-}
-export -f pyenv_list
-defn pyl pyenv_list
-
-defn pyg pyenv global
-defn pysg pyenv global
-defn pysl pyenv local
-pyenv_search() {
-  pyenv install -l | grep "$@"
-}
-export -f pyenv_search
-defn pys pyenv_search
+# pyenv list/search commands removed - use uv for Python management
+# Use 'uv python list' to see available Python versions
 
 defn pss simple-server
 
 defn ptlf pytest --lf
 defn pylf pytest --lf
 
-defn pun pyenv uninstall
-defn punf pyenv uninstall -f
-defn puny pyenv uninstall -f
-defn pyrm pyenv uninstall
-defn pyrmf pyenv uninstall -f
-defn pyui pyenv uninstall
-defn pyui pyenv uninstall -f
-defn pyun pyenv uninstall
-defn pyun pyenv uninstall -f
+# pyenv uninstall commands removed - use uv for Python management
 
 poetry_deps() {
     yq -r -ptoml -oj '.tool.poetry.dependencies | to_entries | [ .[] | select(.key != "python") ] | map([.key, .value] | join("==")) | join("\n")' pyproject.toml
@@ -294,3 +229,7 @@ defn msjo memray stats --json -o
 defn phs python -m http.server
 
 defn dsr datasette --reload --open
+
+# Multi-version Python setup aliases (use with direnv)
+alias spvm="py_direnv_init 3.11 3.12 3.13"  # Setup Python multi-version
+alias pyvm="py_direnv_init 3.11 3.12 3.13"  # Alternative alias

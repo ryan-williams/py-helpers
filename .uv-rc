@@ -70,3 +70,7 @@ uv_init() {
     echo "Initialized UV project: $name"
 }
 alias uvinit="uv_init"
+
+# Source venv version management helpers
+uv_rc_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+[ -f "$uv_rc_dir/venv-helpers.sh" ] && source "$uv_rc_dir/venv-helpers.sh"
