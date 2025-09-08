@@ -7,6 +7,33 @@ alias uvs="uv sync"
 alias uvsf="uv sync --frozen"
 alias uvsd="uv sync --dev"
 alias uvsn="uv sync --no-dev"
+uvsg() {
+    local args=()
+    for g in "$@"; do args+=(--group "$g"); done
+    uv sync "${args[@]}"
+}  # uvs with group(s) - supports multiple
+alias usg=uvsg  # Shorter alias for uvsg
+
+uvse() {
+    local args=()
+    for e in "$@"; do args+=(--extra "$e"); done
+    uv sync "${args[@]}"
+}  # uvs with extra(s) - supports multiple
+alias use=uvse  # Shorter alias for uvse
+
+# Combined groups and extras with -g and -e flags
+uvsge() {
+    local args=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -g|--group) shift; args+=(--group "$1"); shift ;;
+            -e|--extra) shift; args+=(--extra "$1"); shift ;;
+            *) echo "Usage: uvsge [-g group] [-e extra] ..."; return 1 ;;
+        esac
+    done
+    uv sync "${args[@]}"
+}
+alias usge=uvsge  # Shorter alias for combined groups/extras
 alias uva="uv add"
 alias uvad="uv add --dev"
 alias uvr="uv remove"
