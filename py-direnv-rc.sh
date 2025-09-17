@@ -68,8 +68,21 @@ py_direnv_activate() {
     if [[ -f ".venv/bin/activate" ]]; then
         source .venv/bin/activate
 
-        # For new structure, set UV_PROJECT_ENVIRONMENT to .venv
-        export UV_PROJECT_ENVIRONMENT=".venv"
+        # For new structure, set UV_PROJECT_ENVIRONMENT to the actual venv directory
+        # This prevents uv sync from overwriting our symlink structure
+        if [[ -f ".venv/current" ]]; then
+            # Read the current version from the marker file
+            local current_version=$(cat .venv/current)
+            export UV_PROJECT_ENVIRONMENT=".venv/${current_version}"
+        elif [[ -L ".venv/bin" ]]; then
+            # Follow the symlink to get the actual venv directory
+            local bin_target=$(readlink .venv/bin)
+            local venv_dir="${bin_target%/bin}"  # Remove /bin suffix
+            export UV_PROJECT_ENVIRONMENT=".venv/${venv_dir}"
+        else
+            # Fallback to .venv if structure is unclear
+            export UV_PROJECT_ENVIRONMENT=".venv"
+        fi
 
         echo "Activated $(python --version 2>&1)"
     elif [[ ! -e ".venv" ]]; then
