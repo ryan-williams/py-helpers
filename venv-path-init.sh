@@ -7,6 +7,9 @@
 
 # Function to check and add .venv/bin to PATH when entering directories
 venv_path_check() {
+    # Preserve the exit status from the previous command
+    local previous_exit_status=$?
+
     # Clean up ALL .venv/bin and .venv/cur/bin entries from PATH to prevent duplicates
     # Remove both absolute paths and relative paths
     local cleaned_path=$(echo "$PATH" | tr ':' '\n' | grep -v '/.venv/bin$' | grep -v '^\.venv/bin$' | grep -v '/.venv/cur/bin$' | grep -v '^\.venv/cur/bin$' | tr '\n' ':' | sed 's/:$//')
@@ -40,6 +43,9 @@ venv_path_check() {
 
     # Always dedupe PATH to prevent duplicates
     dedupe_path_var PATH
+
+    # Return the preserved exit status
+    return $previous_exit_status
 }
 
 # Option 1: Hook into cd (works in bash/zsh)
