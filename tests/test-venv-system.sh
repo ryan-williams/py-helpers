@@ -422,10 +422,57 @@ test_real_python_execution() {
     TESTS_RUN=$((TESTS_RUN + 1))
 }
 
-# Test 9: Multi-version workflow with real repo
+# Test 9: Subdirectory PATH resolution
+test_subdirectory_path_resolution() {
+    echo -e "\n${YELLOW}Test 9: Subdirectory PATH resolution${NC}"
+    local test_dir="$TEST_BASE/test9"
+    mkdir -p "$test_dir"
+    cd "$test_dir"
+
+    # Create venv
+    test_venv_create 3.12
+
+    # Create subdirectories
+    mkdir -p src/lib/utils
+
+    # Source the path init script
+    source "$HOME/.rc/py/venv-path-init.sh" 2>/dev/null || {
+        echo -e "${YELLOW}⚠${NC} Skipping subdir test (venv-path-init.sh not available)"
+        return
+    }
+
+    # Go to subdirectory and check PATH
+    cd src/lib/utils
+    venv_path_check
+
+    # Check if .venv/bin is in PATH with absolute path
+    if [[ "$PATH" == *"$test_dir/.venv/bin"* ]]; then
+        echo -e "${GREEN}✓${NC} PATH contains absolute .venv/bin from parent"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗${NC} PATH does not contain parent .venv/bin"
+        echo "  PATH: $PATH"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+
+    # Test that python resolves correctly
+    local python_path=$(command -v python 2>/dev/null || echo "")
+    if [[ "$python_path" == "$test_dir/.venv/bin/python" ]]; then
+        echo -e "${GREEN}✓${NC} Python resolves to parent .venv from subdir"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${YELLOW}⚠${NC} Python path: $python_path"
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+
+    # Go back to parent
+    cd "$test_dir"
+}
+
+# Test 10: Multi-version workflow with real repo
 test_multi_version_workflow() {
-    echo ""
-    echo "Test 9: Multi-version workflow with real repo"
+    echo -e "\n${YELLOW}Test 10: Multi-version workflow with real repo${NC}"
     cd "$TEST_BASE"
 
     # Clone the test repo
@@ -538,6 +585,7 @@ main() {
         test_symlink_structure
         test_path_resolution
         test_real_python_execution
+        test_subdirectory_path_resolution
         test_multi_version_workflow
     fi
 
