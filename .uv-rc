@@ -47,6 +47,11 @@ alias uvpl="uv pip list"
 alias uvps="uv pip show"
 alias uvv="uv venv"
 alias uvrun="uv run"
+alias ur="uv run"
+
+# UV tool management
+alias uvt="uv tool"
+alias utl="uv tool list"
 
 # UV with common flags
 alias uvsi="uv sync && uv pip install -e ."  # Sync and install editable
