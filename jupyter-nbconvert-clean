@@ -2,12 +2,18 @@
 
 set -e
 
-if [ $# -ne 2 ]; then
-    echo "Usage: $0 <input.ipynb> <output.ipynb (relative to input)>" >&2
+if [ $# -eq 1 ]; then
+    # In-place mode
+    input="$1"
+    jupyter nbconvert --clear-output --inplace "$input"
+elif [ $# -eq 2 ]; then
+    # Output mode
+    input="$1"
+    output="$2"
+    jupyter nbconvert --clear-output --to notebook --output "$output" "$input"
+else
+    echo "Usage: $0 <input.ipynb> [output.ipynb]" >&2
+    echo "  If only input.ipynb is provided, clears output in-place" >&2
+    echo "  If output.ipynb is provided, writes cleaned notebook to output" >&2
     exit 1
 fi
-
-input="$1"; shift
-output="$1"; shift
-
-jupyter nbconvert --to notebook --ClearOutputPreprocessor.enabled=True --output "$output" "$input"
