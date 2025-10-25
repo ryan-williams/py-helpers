@@ -444,6 +444,8 @@ export -f git_notebook_diff_flags
 defn gndf git_notebook_diff_flags
 alias gndfs="git_notebook_diff_flags '-s'"
 alias gndfu="git_notebook_diff_flags ''"
+alias gnds="git_notebook_diff_flags '-s'"
+alias gndu="git_notebook_diff_flags ''"
 alias gnfs="git_notebook_diff_flags '-s'"
 alias gnfu="git_notebook_diff_flags ''"
 defn gndg git_notebook_diff_flags -g
