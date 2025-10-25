@@ -309,6 +309,101 @@ notebook_reindent_delete_ids() {
 export -f notebook_reindent_delete_ids
 defn nrdi notebook_reindent_delete_ids
 
+git_notebook_diff_enable() {
+  local global=()
+  if [ "$1" = -g ]; then
+    global=(--global)
+    shift
+  fi
+  local attr
+  attr="$(git attr-diff-type foo.ipynb)"
+  if [ -z "$attr" ]; then
+    echo 'No .gitattributes found for *.ipynb; try:' >&2
+    echo '' >&2
+    local attrs_file
+    attrs_file="$(git config core.attributesfile)"
+    if [ -z "$attrs_file" ]; then
+      echo '    git config --global core.attributesfile ~/.gitattributes' >&2
+    else
+      attrs_file="$HOME/.gitattributes"
+    fi
+    echo "    echo \"*.ipynb diff=nb\" >> $attrs_file" >&2
+    return 1
+  fi
+
+  # Check if there's a saved config to restore
+  local saved
+  saved="$(git config "${global[@]}" "diff.$attr.command-saved" 2>/dev/null || true)"
+  if [ -n "$saved" ]; then
+    echo "git config ${global[*]} diff.$attr.command \"$saved\"" >&2
+    git config "${global[@]}" "diff.$attr.command" "$saved"
+  else
+    # Default to sources-only mode
+    echo "git config ${global[*]} diff.$attr.command \"git-nbdiffdriver diff -s\"" >&2
+    git config "${global[@]}" "diff.$attr.command" "git-nbdiffdriver diff -s"
+  fi
+}
+export -f git_notebook_diff_enable
+defn gnde git_notebook_diff_enable
+defn gndeg git_notebook_diff_enable -g
+
+git_notebook_diff_disable() {
+  local global=()
+  if [ "$1" = -g ]; then
+    global=(--global)
+    shift
+  fi
+  local attr
+  attr="$(git attr-diff-type foo.ipynb)"
+  if [ -z "$attr" ]; then
+    echo 'No .gitattributes found for *.ipynb' >&2
+    return 1
+  fi
+
+  # Save current config if it exists
+  local current
+  current="$(git config "${global[@]}" "diff.$attr.command" 2>/dev/null || true)"
+  if [ -n "$current" ]; then
+    echo "git config ${global[*]} diff.$attr.command-saved \"$current\"" >&2
+    git config "${global[@]}" "diff.$attr.command-saved" "$current"
+    echo "git config ${global[*]} --unset diff.$attr.command" >&2
+    git config "${global[@]}" --unset "diff.$attr.command"
+  else
+    echo "nbdime already disabled" >&2
+  fi
+}
+export -f git_notebook_diff_disable
+defn gndd git_notebook_diff_disable
+defn gndx git_notebook_diff_disable
+defn gnddg git_notebook_diff_disable -g
+defn gndxg git_notebook_diff_disable -g
+
+git_notebook_diff_toggle() {
+  local global=()
+  if [ "$1" = -g ]; then
+    global=(--global)
+    shift
+  fi
+  local attr
+  attr="$(git attr-diff-type foo.ipynb)"
+  if [ -z "$attr" ]; then
+    echo 'No .gitattributes found for *.ipynb' >&2
+    return 1
+  fi
+
+  # Check if currently enabled
+  local current
+  current="$(git config "${global[@]}" "diff.$attr.command" 2>/dev/null || true)"
+  if [ -n "$current" ]; then
+    git_notebook_diff_disable "${global[@]}"
+  else
+    git_notebook_diff_enable "${global[@]}"
+  fi
+}
+export -f git_notebook_diff_toggle
+defn gndt git_notebook_diff_toggle
+defn gndtg git_notebook_diff_toggle -g
+
 git_notebook_diff_flags() {
   local global=()
   if [ "$1" = -g ]; then
