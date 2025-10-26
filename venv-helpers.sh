@@ -170,21 +170,37 @@ EOF
 
     # Set direct symlinks to the last created venv (avoid nested symlinks)
     if [[ -n "$last_version" ]]; then
-        # Create direct symlinks to version directories (not through cur)
-        ln -sfn "${last_version}/bin" .venv/bin
-        ln -sfn "${last_version}/lib" .venv/lib
-        ln -sfn "${last_version}/include" .venv/include
-        ln -sfn "${last_version}/pyvenv.cfg" .venv/pyvenv.cfg
-
-        # Store current version in a file for reference
-        echo "${last_version}" > .venv/current
-        echo "Set current version to ${last_version}" >&2
+        venv_set_current "${last_version}"
 
         # Trigger path check to activate it
         venv_path_check
     fi
 }
 defn vc venv_create
+
+# Set current venv by creating symlinks and marker file
+# Args: version (e.g., "3.13.7")
+venv_set_current() {
+    local version="$1"
+
+    # Create direct symlinks to version directories (not through cur)
+    ln -sfn "${version}/bin" .venv/bin
+    ln -sfn "${version}/lib" .venv/lib
+    ln -sfn "${version}/include" .venv/include
+    ln -sfn "${version}/pyvenv.cfg" .venv/pyvenv.cfg
+
+    # Store current version in a file for reference
+    echo "${version}" > .venv/current
+
+    # Create lock file if it doesn't exist
+    if [[ ! -e .venv/.lock ]]; then
+        touch .venv/.lock
+        chmod 777 .venv/.lock
+    fi
+
+    echo "Set current version to ${version}" >&2
+}
+export -f venv_set_current
 
 # Find venv by pattern (e.g., "12" matches ".venv3.12.7", "3.12" also works)
 find_venv() {

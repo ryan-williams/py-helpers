@@ -31,7 +31,7 @@ py_direnv_init() {
     # Step 0: Handle existing .venv directory
     if [[ -d ".venv" ]] && [[ ! -L ".venv" ]]; then
         # Check if this is already the new structure (.venv/X.Y.Z/)
-        if [[ -d ".venv/cur" ]] || ls .venv/[0-9]* &>/dev/null; then
+        if [[ -d ".venv/cur" ]] || ls .venv/[0-9]* &>/dev/null 2>&1; then
             echo "Found existing .venv with versioned structure" >&2
         # Check if this is old-style .venv (direct venv directory)
         elif [[ -f ".venv/bin/python" ]]; then
@@ -39,17 +39,23 @@ py_direnv_init() {
 
             # Detect the Python version in the existing venv
             local existing_version=$(.venv/bin/python --version 2>&1 | awk '{print $2}')
-            local new_name=".venv${existing_version}"
 
             echo "  Detected Python $existing_version" >&2
-            echo "  Moving .venv -> $new_name" >&2
+            echo "  Converting to new structure: .venv/$existing_version/" >&2
 
-            # Move the existing venv to versioned name
-            mv .venv "$new_name"
+            # Move the old venv to a temp location
+            mv .venv ".venv.tmp.$$"
 
-            # Create symlink back
-            ln -sfn "$new_name" .venv
-            echo "  Created symlink: .venv -> $new_name" >&2
+            # Create new .venv directory with versioned structure
+            mkdir -p .venv
+
+            # Move the venv into the new structure
+            mv ".venv.tmp.$$" ".venv/$existing_version"
+
+            # Set up symlinks and marker file using shared helper
+            venv_set_current "$existing_version"
+
+            echo "  Converted to .venv/$existing_version/ with symlinks" >&2
 
             # If no versions specified, we're done
             if [[ -z "$versions" ]]; then
