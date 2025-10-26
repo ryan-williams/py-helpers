@@ -40,6 +40,10 @@ py_direnv_rc() {
         # Activate the venv using absolute path
         source "$PWD/.venv/bin/activate"
 
+        # Override VIRTUAL_ENV to match UV_PROJECT_ENVIRONMENT
+        # The activate script sets it to the actual venv path, but UV expects the symlink
+        export VIRTUAL_ENV="$PWD/.venv"
+
         # Create pip shim if needed
         create_uv_pip_shim
 
@@ -68,6 +72,10 @@ py_direnv_activate() {
         # UV will follow the symlink to the actual venv directory
         # This prevents warnings about VIRTUAL_ENV mismatch
         export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
+
+        # Override VIRTUAL_ENV to match UV_PROJECT_ENVIRONMENT
+        # The activate script sets it to the actual venv path, but UV expects the symlink
+        export VIRTUAL_ENV="$PWD/.venv"
 
         # Ensure .venv/bin is at the front of PATH with absolute path
         export PATH="$PWD/.venv/bin:$PATH"
