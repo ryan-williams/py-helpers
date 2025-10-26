@@ -34,20 +34,8 @@ py_direnv_rc() {
             uv sync --frozen || uv venv "$PWD/.venv"
         fi
 
-        # Set UV_PROJECT_ENVIRONMENT for new structure
-        if [[ -L "$PWD/.venv/cur" ]]; then
-            export UV_PROJECT_ENVIRONMENT="$PWD/.venv/cur"
-        elif [[ -L "$PWD/.venv" ]]; then
-            # Get absolute path of the symlink target
-            local target=$(readlink "$PWD/.venv")
-            if [[ "$target" = /* ]]; then
-                # Already absolute
-                export UV_PROJECT_ENVIRONMENT="$target"
-            else
-                # Relative, make it absolute
-                export UV_PROJECT_ENVIRONMENT="$PWD/$target"
-            fi
-        fi
+        # Set UV_PROJECT_ENVIRONMENT to .venv (UV will follow symlinks)
+        export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
 
         # Activate the venv using absolute path
         source "$PWD/.venv/bin/activate"
@@ -76,21 +64,10 @@ py_direnv_activate() {
     if [[ -f "$PWD/.venv/bin/activate" ]]; then
         source "$PWD/.venv/bin/activate"
 
-        # For new structure, set UV_PROJECT_ENVIRONMENT to the actual venv directory
-        # This prevents uv sync from overwriting our symlink structure
-        if [[ -f "$PWD/.venv/current" ]]; then
-            # Read the current version from the marker file
-            local current_version=$(cat "$PWD/.venv/current")
-            export UV_PROJECT_ENVIRONMENT="$PWD/.venv/${current_version}"
-        elif [[ -L "$PWD/.venv/bin" ]]; then
-            # Follow the symlink to get the actual venv directory
-            local bin_target=$(readlink "$PWD/.venv/bin")
-            local venv_dir="${bin_target%/bin}"  # Remove /bin suffix
-            export UV_PROJECT_ENVIRONMENT="$PWD/.venv/${venv_dir}"
-        else
-            # Fallback to .venv if structure is unclear
-            export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
-        fi
+        # For new structure, set UV_PROJECT_ENVIRONMENT to .venv (the symlink)
+        # UV will follow the symlink to the actual venv directory
+        # This prevents warnings about VIRTUAL_ENV mismatch
+        export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
 
         # Ensure .venv/bin is at the front of PATH with absolute path
         export PATH="$PWD/.venv/bin:$PATH"

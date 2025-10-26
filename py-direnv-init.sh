@@ -76,13 +76,8 @@ py_direnv_init() {
         # Install dependencies if needed
         if [[ "$has_uv_lock" == "true" ]]; then
             echo "  Installing dependencies with uv sync..." >&2
-            # Set UV_PROJECT_ENVIRONMENT to the actual venv directory to preserve our structure
-            if [[ -f ".venv/current" ]]; then
-                local current_version=$(cat .venv/current)
-                UV_PROJECT_ENVIRONMENT=".venv/${current_version}" uv sync --frozen 2>&1 | tail -5
-            else
-                uv sync --frozen 2>&1 | tail -5
-            fi
+            # Set UV_PROJECT_ENVIRONMENT to .venv (UV will follow symlinks)
+            UV_PROJECT_ENVIRONMENT=".venv" uv sync --frozen 2>&1 | tail -5
         elif [[ -f "pyproject.toml" ]] && command -v uv &>/dev/null; then
             uv pip install -e . --python .venv/bin/python
         elif [[ -f "requirements.txt" ]] && command -v uv &>/dev/null; then

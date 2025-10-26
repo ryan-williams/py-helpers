@@ -41,8 +41,8 @@ venv_path_check() {
                     # Only sync if this specific venv hasn't been synced yet
                     if [[ ! -f "$marker_file" ]]; then
                         echo "Syncing UV dependencies for ${actual_venv}..." >&2
-                        # Tell UV to use the venv/cur as the environment
-                        if (cd "${venv_dir%/.venv}" && UV_PROJECT_ENVIRONMENT="$venv_dir/cur" uv sync --frozen --quiet 2>/dev/null); then
+                        # Tell UV to use .venv (it will follow symlinks)
+                        if (cd "${venv_dir%/.venv}" && UV_PROJECT_ENVIRONMENT="$venv_dir" uv sync --frozen --quiet 2>/dev/null); then
                             touch "$marker_file"
                         fi
                     fi
