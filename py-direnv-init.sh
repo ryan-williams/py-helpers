@@ -90,7 +90,7 @@ py_direnv_init() {
         fi
     fi
 
-    # Step 2: Create minimal .envrc
+    # Step 2: Create or repair .envrc
     if [[ ! -f ".envrc" ]]; then
         # Create minimal .envrc that sources and calls the init function
         cat > .envrc << 'EOF'
@@ -102,6 +102,24 @@ EOF
         echo "Created .envrc with Python support" >&2
     else
         echo ".envrc already exists" >&2
+        # Check if it has the required py-direnv-rc line
+        if ! grep -q "py-direnv-rc.sh.*py_direnv_rc" .envrc; then
+            # Check if there's existing .venv structure that needs management
+            if [[ -d ".venv" ]] && (ls .venv/[0-9]* &>/dev/null 2>&1 || [[ -d ".venv/cur" ]] || [[ -L ".venv/bin" ]]); then
+                echo "  Missing Python venv management line, adding..." >&2
+                cat >> .envrc << 'EOF'
+# Python environment - activates .venv symlink
+# To switch versions: uvsw 3.12 (changes symlink)
+source $HOME/.rc/py/py-direnv-rc.sh && py_direnv_rc
+EOF
+                echo "  Updated .envrc with Python support" >&2
+            else
+                echo "  .envrc exists but .venv structure needs initialization" >&2
+                echo "  (will preserve existing .envrc and set up .venv)" >&2
+            fi
+        else
+            echo "  .envrc already has Python support" >&2
+        fi
     fi
 
     # Step 3: Set default version if multiple venvs exist
