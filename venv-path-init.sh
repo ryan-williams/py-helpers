@@ -11,8 +11,18 @@ venv_path_check() {
     local previous_exit_status=$?
 
     # Clean up ALL .venv/bin and .venv/cur/bin entries from PATH to prevent duplicates
-    # Remove both absolute paths and relative paths
-    local cleaned_path=$(echo "$PATH" | tr ':' '\n' | grep -v '/.venv/bin$' | grep -v '^\.venv/bin$' | grep -v '/.venv/cur/bin$' | grep -v '^\.venv/cur/bin$' | tr '\n' ':' | sed 's/:*$//')
+    # Optimized: use bash built-ins instead of spawning 8+ subprocesses
+    local cleaned_path=""
+    local segment
+    local IFS=':'
+    for segment in $PATH; do
+        # Skip .venv paths (both absolute and relative)
+        [[ "$segment" == */.venv/bin ]] && continue
+        [[ "$segment" == ".venv/bin" ]] && continue
+        [[ "$segment" == */.venv/cur/bin ]] && continue
+        [[ "$segment" == ".venv/cur/bin" ]] && continue
+        cleaned_path="${cleaned_path:+$cleaned_path:}$segment"
+    done
 
     # Search up the directory tree for a .venv
     local check_dir="$PWD"
@@ -55,8 +65,8 @@ venv_path_check() {
 
     export PATH
 
-    # Always dedupe PATH to prevent duplicates
-    dedupe_path_var PATH
+    # Note: PATH is already deduped by the bash built-in loop above
+    # No need to call dedupe_path_var which spawns 30+ subprocesses
 
     # Return the preserved exit status
     return $previous_exit_status
