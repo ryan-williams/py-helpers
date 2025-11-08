@@ -79,6 +79,7 @@ export -f pilc
 
 defn pixi pipx install
 defn pxit pipx install --index-url https://test.pypi.org/simple/
+defn pixu pipx upgrade
 
 pixl() {
     if [ $# -eq 0 ]; then
