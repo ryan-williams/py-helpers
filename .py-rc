@@ -77,6 +77,32 @@ pilc() {
 }
 export -f pilc
 
+defn pixi pipx install
+defn pxit pipx install --index-url https://test.pypi.org/simple/
+
+pixl() {
+    if [ $# -eq 0 ]; then
+        pipx list
+    else
+      args=()
+      for arg in "$@"; do
+        args+=("-e" "$arg")
+      done
+      pipx list | grep -i "${args[@]}"
+    fi
+}
+export -f pixl
+
+pixe() {
+    pipx install -e "${@:-.}"
+}
+export -f pixe
+
+pixef() {
+    pixe "${@:-.}" -f
+}
+export -f pixef
+
 pir() {
   if [ $# -eq 0 ]; then
     pip install -r requirements.txt
