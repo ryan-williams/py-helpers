@@ -28,14 +28,15 @@ py_direnv_rc() {
         # UV project with lock file
         echo "Detected uv.lock project" >&2
 
+        # Set UV_PROJECT_ENVIRONMENT to .venv BEFORE running uv sync
+        # This ensures UV respects the symlink structure and doesn't auto-detect the wrong venv
+        export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
+
         # Create venv if it doesn't exist
         if [ ! -d "$PWD/.venv" ]; then
             echo "Creating uv virtual environment..." >&2
             uv sync --frozen || uv venv "$PWD/.venv"
         fi
-
-        # Set UV_PROJECT_ENVIRONMENT to .venv (UV will follow symlinks)
-        export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
 
         # Activate the venv using absolute path
         source "$PWD/.venv/bin/activate"
