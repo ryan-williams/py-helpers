@@ -65,6 +65,28 @@ alias uvpyl="uv python list"
 alias uvpyi="uv python install"
 alias uvpyp="uv python pin"
 
+# List available dependency groups
+uv_groups() {
+    if [ -f "pyproject.toml" ]; then
+        yq -p toml -r '.dependency-groups | keys | .[]' pyproject.toml 2>/dev/null || echo "No dependency groups found"
+    else
+        echo "No pyproject.toml found" >&2
+        return 1
+    fi
+}
+alias uvg="uv_groups"
+
+# List available extras
+uv_extras() {
+    if [ -f "pyproject.toml" ]; then
+        yq -p toml -r '.project.optional-dependencies | keys | .[]' pyproject.toml 2>/dev/null || echo "No extras found"
+    else
+        echo "No pyproject.toml found" >&2
+        return 1
+    fi
+}
+alias uve="uv_extras"
+
 # Show current UV project info
 uv_info() {
     if [ -f "uv.lock" ] || [ -f "pyproject.toml" ]; then
@@ -88,11 +110,20 @@ uv_info() {
         else
             echo "Lock: not found"
         fi
+
+        # Show groups and extras if available
+        local groups=$(uv_groups 2>/dev/null)
+        if [ -n "$groups" ] && [ "$groups" != "No dependency groups found" ]; then
+            echo "Groups: $groups"
+        fi
+        local extras=$(uv_extras 2>/dev/null)
+        if [ -n "$extras" ] && [ "$extras" != "No extras found" ]; then
+            echo "Extras: $extras"
+        fi
     else
         echo "Not a UV project (no uv.lock or pyproject.toml found)"
     fi
 }
-alias uvi="uv_info"
 alias uvinfo="uv_info"
 
 # Quick UV project initialization
