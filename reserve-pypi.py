@@ -1,4 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "build",
+#     "twine",
+# ]
+# ///
 """
 Reserve a PyPI package name by publishing a minimal placeholder package.
 
@@ -23,6 +30,47 @@ import webbrowser
 from urllib.request import Request, urlopen
 
 err = partial(print, file=sys.stderr)
+
+
+def get_tracking_remote() -> str | None:
+    """Get the remote name from the current branch's upstream tracking branch."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        # Output is like "origin/main" - extract the remote name
+        upstream = result.stdout.strip()
+        if "/" in upstream:
+            return upstream.split("/")[0]
+        return None
+    except subprocess.CalledProcessError:
+        return None
+
+
+def get_from_pyproject(key: str) -> str | None:
+    """Read a field from pyproject.toml's [project] section if it exists."""
+    pyproject_path = Path("pyproject.toml")
+    if not pyproject_path.exists():
+        return None
+    try:
+        import tomllib
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+        return data.get("project", {}).get(key)
+    except Exception:
+        return None
+
+
+def get_package_name() -> str | None:
+    """Get package name from pyproject.toml or current directory."""
+    name = get_from_pyproject("name")
+    if name:
+        return name
+    # Fall back to current directory name
+    return Path.cwd().name
 
 
 def get_repo_url_from_remote(remote_name: str) -> str | None:
@@ -226,7 +274,7 @@ def build_and_upload(work_dir, package_name, test_pypi=False, dry_run=False):
 
 def main():
     parser = argparse.ArgumentParser(description="Reserve a PyPI package name with a minimal placeholder")
-    parser.add_argument("package_name", help="Name of the package to reserve")
+    parser.add_argument("package_name", nargs="?", help="Name of the package to reserve (default: from pyproject.toml or current dir)")
     parser.add_argument("-d", "--description", help="Package description (default: 'Placeholder for <name>')")
     parser.add_argument("-R", "--repo", help="Repository URL or path (e.g. user/repo or https://...)")
     parser.add_argument("-r", "--remote", help="Get repository URL from Git remote")
@@ -236,12 +284,29 @@ def main():
     parser.add_argument("--keep-files", action="store_true", help="Keep the temporary package files after upload")
     args = parser.parse_args()
 
+    # Get package name from argument or auto-detect
+    package_name = args.package_name
+    if not package_name:
+        package_name = get_package_name()
+        if package_name:
+            err(f"Using package name: {package_name}")
+        else:
+            err("Error: Could not determine package name. Provide it as an argument.")
+            sys.exit(1)
+
     # Validate package name
-    if not args.package_name.replace("-", "_").replace("_", "").isalnum():
-        err(f"Error: Invalid package name: {args.package_name}")
+    if not package_name.replace("-", "_").replace("_", "").isalnum():
+        err(f"Error: Invalid package name: {package_name}")
         sys.exit(1)
 
-    # Get repo URL from arguments
+    # Get description from arguments or pyproject.toml
+    description = args.description
+    if not description:
+        description = get_from_pyproject("description")
+        if description:
+            err(f"Using description from pyproject.toml: {description}")
+
+    # Get repo URL from arguments or auto-detect from tracking remote
     repo_url = None
 
     if args.repo:
@@ -262,25 +327,36 @@ def main():
                 repo_url = None
         else:
             err(f"Warning: Could not parse repository URL from remote '{args.remote}'")
+    else:
+        # Auto-detect from tracking remote
+        tracking_remote = get_tracking_remote()
+        if tracking_remote:
+            repo_url = get_repo_url_from_remote(tracking_remote)
+            if repo_url:
+                err(f"Auto-detected repository URL from tracking remote '{tracking_remote}': {repo_url}")
+                # Verify it exists
+                if not verify_repo_exists(repo_url):
+                    err(f"Warning: Could not verify repository exists at {repo_url}")
+                    repo_url = None
 
     # Create temporary directory for package
     if args.keep_files or args.dry_run:
-        work_dir = Path(f"reserve-{args.package_name}")
+        work_dir = Path(f"reserve-{package_name}")
         work_dir.mkdir(exist_ok=True)
         if args.dry_run:
             err(f"[DRY-RUN] Creating package in: {work_dir}")
         else:
             err(f"Creating package in: {work_dir}")
     else:
-        temp_dir = tempfile.mkdtemp(prefix=f"reserve-{args.package_name}-")
+        temp_dir = tempfile.mkdtemp(prefix=f"reserve-{package_name}-")
         work_dir = Path(temp_dir)
         err(f"Creating package in temporary directory: {work_dir}")
 
     try:
         # Create package files
         files = create_minimal_package(
-            args.package_name,
-            args.description,
+            package_name,
+            description,
             repo_url,
         )
 
@@ -292,19 +368,19 @@ def main():
             err(f"  Created: {filepath}")
 
         # Build and upload
-        build_and_upload(work_dir, args.package_name, args.test, args.dry_run)
+        build_and_upload(work_dir, package_name, args.test, args.dry_run)
 
         # Determine the package URL
         if args.test:
-            package_url = f"https://test.pypi.org/project/{args.package_name}/"
+            package_url = f"https://test.pypi.org/project/{package_name}/"
         else:
-            package_url = f"https://pypi.org/project/{args.package_name}/"
+            package_url = f"https://pypi.org/project/{package_name}/"
 
         if args.dry_run:
-            err(f"\n[DRY-RUN] Package {args.package_name} would be reserved")
+            err(f"\n[DRY-RUN] Package {package_name} would be reserved")
             print(package_url)
         else:
-            err(f"\nPackage {args.package_name} successfully reserved!")
+            err(f"\nPackage {package_name} successfully reserved!")
             print(package_url)
 
             # Open in browser unless disabled
