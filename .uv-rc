@@ -8,17 +8,27 @@ alias uvsf="uv sync --frozen"
 alias uvsd="uv sync --dev"
 alias uvsn="uv sync --no-dev"
 uvsg() {
+    if [ $# -eq 0 ]; then
+        echo "Available groups:" >&2
+        uv_groups
+        return
+    fi
     local args=()
     for g in "$@"; do args+=(--group "$g"); done
     uv sync "${args[@]}"
-}  # uvs with group(s) - supports multiple
+}  # uvs with group(s) - supports multiple; no args lists groups
 alias usg=uvsg  # Shorter alias for uvsg
 
 uvse() {
+    if [ $# -eq 0 ]; then
+        echo "Available extras:" >&2
+        uv_extras
+        return
+    fi
     local args=()
     for e in "$@"; do args+=(--extra "$e"); done
     uv sync "${args[@]}"
-}  # uvs with extra(s) - supports multiple
+}  # uvs with extra(s) - supports multiple; no args lists extras
 alias use=uvse  # Shorter alias for uvse
 
 # Combined groups and extras with -g and -e flags
