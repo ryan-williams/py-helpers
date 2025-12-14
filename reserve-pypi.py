@@ -233,7 +233,11 @@ def build_and_upload(work_dir, package_name, test_pypi=False, dry_run=False):
         )
 
         if result.returncode != 0:
-            err(f"Build failed:\n{result.stderr}")
+            err(f"Build failed:")
+            if result.stdout:
+                err(result.stdout)
+            if result.stderr:
+                err(result.stderr)
             sys.exit(1)
 
     if dry_run:
@@ -265,7 +269,11 @@ def build_and_upload(work_dir, package_name, test_pypi=False, dry_run=False):
     )
 
     if result.returncode != 0:
-        err(f"Upload failed:\n{result.stderr}")
+        err(f"Upload failed:")
+        if result.stdout:
+            err(result.stdout)
+        if result.stderr:
+            err(result.stderr)
         sys.exit(1)
 
     err(f"Successfully reserved {package_name} on {index_name}!")
@@ -294,8 +302,8 @@ def main():
             err("Error: Could not determine package name. Provide it as an argument.")
             sys.exit(1)
 
-    # Validate package name
-    if not package_name.replace("-", "_").replace("_", "").isalnum():
+    # Validate package name (allows letters, numbers, hyphens, underscores, periods)
+    if not package_name.replace("-", "").replace("_", "").replace(".", "").isalnum():
         err(f"Error: Invalid package name: {package_name}")
         sys.exit(1)
 
