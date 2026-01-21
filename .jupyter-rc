@@ -278,6 +278,9 @@ defn pmrii juq papermill run -iI
 defn pri juq papermill run -i
 defn prii juq papermill run -iI
 
+defn jfs juq fmt -s
+defn jfo juq fmt -O
+
 summarize_nb() {
     local cwd="$(dirname "${BASH_SOURCE[0]}")"
     jq -f "$cwd/summarize-nb.jq" "$@"
