@@ -184,6 +184,12 @@ venv_set_current() {
     local version="$1"
 
     # Create direct symlinks to version directories (not through cur)
+    # Must remove existing directories first - ln -sfn can't replace dirs with symlinks
+    for item in bin lib include pyvenv.cfg; do
+        if [[ -e ".venv/$item" ]] && [[ ! -L ".venv/$item" ]]; then
+            rm -rf ".venv/$item"
+        fi
+    done
     ln -sfn "${version}/bin" .venv/bin
     ln -sfn "${version}/lib" .venv/lib
     ln -sfn "${version}/include" .venv/include
@@ -267,6 +273,12 @@ venv_switch() {
 
     # Update direct symlinks (no cur symlink to avoid nested symlinks)
     local venv_basename=$(basename "$venv_name")
+    # Must remove existing directories first - ln -sfn can't replace dirs with symlinks
+    for item in bin lib include pyvenv.cfg; do
+        if [[ -e ".venv/$item" ]] && [[ ! -L ".venv/$item" ]]; then
+            rm -rf ".venv/$item"
+        fi
+    done
     ln -sfn "${venv_basename}/bin" .venv/bin
     ln -sfn "${venv_basename}/lib" .venv/lib
     ln -sfn "${venv_basename}/include" .venv/include
